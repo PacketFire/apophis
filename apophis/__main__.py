@@ -1,9 +1,9 @@
-import lib.client
+import core.client
 
 
 def start_bot():
-    bot = lib.client.Bot()
-    bot.run()
+    bot = core.client.Bot()
+    bot.run('NTI3MzcyMzE2NDY0NjQ0MTA2.DwS6tw.h0XDOl4X5PW85pRvRB9WKpc1mpY')
 
 
 if __name__ == "__main__":
