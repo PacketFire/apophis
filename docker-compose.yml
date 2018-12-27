@@ -1,0 +1,11 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:10.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15432:5432"
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data
