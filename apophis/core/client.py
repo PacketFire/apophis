@@ -13,4 +13,5 @@ class Bot(discord.Client):
         if message.author.id == self.user.id:
             return
 
-        await core.handlers.parse_commands(message)
+        ch = core.handlers.CmdHandler(Bot())
+        await ch.parse_cmds(message)
