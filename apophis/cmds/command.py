@@ -15,7 +15,7 @@ def command_handler(module, handler) -> Command:
     return cmd
 
 
-commands = [{
+commands = [
 {
     'trigger': '!theo',
     'module': 'cmds.theo',
