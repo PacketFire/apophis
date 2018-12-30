@@ -1,4 +1,5 @@
 import importlib
+from core.readers import fetch_config
 
 class Command:
     def __init__(self, cmd_data):
@@ -14,7 +15,8 @@ def command_handler(module, handler) -> Command:
     return cmd
 
 
-prefix = ['!', '#', '?']
+config = fetch_config()
+prefix = config['prefix']
 
 commands = [
 {
