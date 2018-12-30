@@ -13,14 +13,17 @@ class BotClient(discord.Client):
         if message.author.id == self.user.id:
             return
         else:
-            for i in range(len(cmds.command.commands)):
-                if message.content.startswith(cmds.command.commands[i]['trigger']):
-                    c = cmds.command.command_handler(
-                        cmds.command.commands[i]['module'], 
-                        cmds.command.commands[i]['handler']
-                    )
-                    c(message, cmds.command.commands[i])
-                    await message.channel.send(c.parse_command(cmds.command.commands[i]))
+            for n in range(len(cmds.command.prefix)):
+                if message.content.startswith(cmds.command.prefix[n]):
+                    for i in range(len(cmds.command.commands)):
+                        if message.content[1:].startswith(cmds.command.commands[i]['trigger']):
+                            c = cmds.command.command_handler(
+                                cmds.command.commands[i]['module'], 
+                                cmds.command.commands[i]['handler']
+                            )
+                            
+                            c(cmds.command.commands[i]) 
+                            await c.parse_command(cmds.command.commands[i], message)
 
         return print("#" + str(message.channel) + " | <" + message.author.name + "> " + message.content)
 

@@ -1,8 +1,7 @@
 import importlib
 
 class Command:
-    def __init__(self, message, cmd_data):
-        self.message = message
+    def __init__(self, cmd_data):
         self.cmd_data = cmd_data
 
     def parse_command(self):
@@ -15,15 +14,22 @@ def command_handler(module, handler) -> Command:
     return cmd
 
 
+prefix = ['!', '#', '?']
+
 commands = [
 {
-    'trigger': '!theo',
+    'trigger': 'theo',
     'module': 'cmds.theo',
     'handler': 'TheoCommand'
 },
 {
-    'trigger': '!help',
+    'trigger': 'help',
     'module': 'cmds.help',
     'handler': 'HelpCommand'
+},
+{
+    'trigger': 'define',
+    'module': 'cmds.define',
+    'handler': 'DefineCommand'
 }
 ]
