@@ -61,7 +61,8 @@ class MusicCommand(Command):
                     else:
                         write_playlist_file(content[2], content[3])
                         return message.channel.send(
-                            'Creating new playlist ``{0}`` and adding ``{1}`` to the list.'
+                            'Creating new playlist ``{0}`` \
+                            and adding ``{1}`` to the list.'
                             .format(content[2], content[3])
                         )
                 elif content[1].startswith('del'):
