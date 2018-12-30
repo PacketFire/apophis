@@ -1,5 +1,6 @@
 import json
 
+
 def fetch_config() -> dict:
     config = {}
     try:
