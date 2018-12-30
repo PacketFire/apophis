@@ -1,6 +1,6 @@
 import random
-import asyncio
 from cmds.command import Command
+
 
 class TheoCommand(Command):
     def __init__(self, cmd_data):

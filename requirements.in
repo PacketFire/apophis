@@ -1,2 +1,4 @@
 click==7.0
 flake8==3.6.0
+mypy==0.630
+mypy_extensions==0.4.1
