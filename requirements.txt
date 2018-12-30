@@ -9,3 +9,5 @@ flake8==3.6.0
 mccabe==0.6.1             # via flake8
 pycodestyle==2.4.0        # via flake8
 pyflakes==2.0.0           # via flake8
+mypy-extensions==0.4.1
+mypy==0.630
