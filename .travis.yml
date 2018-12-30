@@ -13,5 +13,5 @@ install:
 
 # command to run tests
 script:
-  - flake 8 .
+  - flake8 .
   - mypy --ignore-missing-imports .
