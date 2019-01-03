@@ -1,6 +1,8 @@
 import json
 from cmds.command import Command
 from typing import NamedTuple
+from pytube import YouTube
+from discord import FFmpegPCMAudio
 
 
 class PlaylistData(NamedTuple):
@@ -42,7 +44,7 @@ class MusicCommand(Command):
     def __init__(self, cmd_data):
         self.cmd_data = cmd_data
 
-    def parse_command(self, message):
+    async def parse_command(self, message, vc):
         usage = "usage: #music playlist <add/del/play>"
         content = message.content[7:].split(
             " ",
@@ -61,8 +63,7 @@ class MusicCommand(Command):
                     else:
                         write_playlist_file(content[2], content[3])
                         return message.channel.send(
-                            'Creating new playlist ``{0}`` \
-                            and adding ``{1}`` to the list.'
+                            'Creating new playlist ``{0}`` and adding ``{1}`` to the list.'
                             .format(content[2], content[3])
                         )
                 elif content[1].startswith('del'):
@@ -72,14 +73,29 @@ class MusicCommand(Command):
                     )
                 elif content[1].startswith('play'):
                     return message.channel.send(
-                        '!play {0}'.format(content[2])
+                        'Playing {0}'.format(content[2])
                     )
                 else:
                     return message.channel.send(usage)
             elif content[0].startswith('play'):
-                return message.channel.send(
-                    '!play {0}'.format(content[1])
+                voice = await message.author.voice.channel.connect()
+                voice.play(FFmpegPCMAudio('data/music/' + content[1]))
+                return await message.channel.send(
+                    'Playing {0}'.format(content[1])
                 )
+            elif content[0].startswith('fetch'):
+                if content[1].startswith('https://www.youtube.com/watch?v='):
+                    await message.channel.send(
+                        'Downloading {0}'.format(content[1])
+                    )
+
+                    YouTube(content[1]).streams.first().download(
+                        'data/music/', filename=content[2]
+                    )
+
+                    return await message.channel.send(
+                        'Downloaded {0}'.format(content[1])
+                    )
             else:
                 return message.channel.send(usage)
         else:
