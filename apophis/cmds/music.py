@@ -27,8 +27,7 @@ def write_playlist_file(filename: str, playlist_data: PlaylistData) -> None:
         with open('data/music/' + filename + '.json', 'a+') as fh:
             fh.write(json.dumps(file_data))
     except IOError:
-        with open('data/music/' + filename + '.json', 'a+') as fh:
-            fh.write(json.dumps(file_data))
+        print("unable to write to file")
 
 
 def playlist_file_exists(filename: str) -> bool:
@@ -46,10 +45,9 @@ class MusicCommand(Command):
 
     async def parse_command(self, message, vc):
         usage = "usage: #music playlist <add/del/play>"
-        content = message.content[7:].split(
-            " ",
-            message.content[7:].count(" ")
-        )
+
+        content = list(message.content[7:].split())
+        print(content)
 
         if len(content) >= 2:
             if content[0].startswith('playlist'):
