@@ -6,11 +6,8 @@ class DefineCommand(Command):
     def __init__(self, cmd_data):
         self.cmd_data = cmd_data
 
-    def parse_command(self, message):
-        content = message.content[8:].split(
-            " ",
-            message.content[8:].count(" ")
-        )
+    def parse_command(self, message, vc):
+        content = list(message.content[8:].split())
         last = content[-1]
         r = requests.get(
             "http://api.urbandictionary.com/v0/define?term={}"
@@ -22,12 +19,12 @@ class DefineCommand(Command):
             return message.channel.send(
                 message.content[8:-1] +
                 "[" + str(last) + "/" +
-                str(len(data['list'])) +
+                str(len(data['list'])-1) +
                 "]: " + data['list'][int(last)]['definition']
             )
         else:
             return message.channel.send(
                 message.content[8:] +
-                "[0/" + str(len(data['list'])) + "]: " +
+                "[0/" + str(len(data['list'])-1) + "]: " +
                 data['list'][0]['definition']
             )

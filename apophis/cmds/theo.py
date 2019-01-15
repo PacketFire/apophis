@@ -6,7 +6,7 @@ class TheoCommand(Command):
     def __init__(self, cmd_data):
         self.cmd_data = cmd_data
 
-    async def parse_command(self, message) -> str:
+    async def parse_command(self, message, vc) -> str:
         try:
             with open('data/theo.txt', 'r') as fh:
                 line = random.choice(list(fh))

@@ -3,6 +3,7 @@ from cmds.command import Command
 from typing import NamedTuple
 from pytube import YouTube
 from discord import FFmpegPCMAudio
+from core.storage import connect
 
 
 class PlaylistData(NamedTuple):
@@ -74,7 +75,7 @@ class MusicCommand(Command):
                         'Playing {0}'.format(content[2])
                     )
                 else:
-                    return message.channel.send(usage)
+                    return await message.channel.send(usage)
             elif content[0].startswith('play'):
                 voice = await message.author.voice.channel.connect()
                 voice.play(FFmpegPCMAudio('data/music/' + content[1]))
@@ -88,13 +89,42 @@ class MusicCommand(Command):
                     )
 
                     YouTube(content[1]).streams.first().download(
-                        'data/music/', filename=content[2]
+                        'data/music/',
+                    )
+                    yt = YouTube(content[1])
+                    statement = '''
+                    insert into songs (
+                        title, 
+                        userid, 
+                        uploader,
+                        link,
+                        duration
+                    )
+                    values($1, $2, $3, $4, $5);
+                    '''
+                    db = await connect()
+                    await db.execute(
+                        statement, 
+                        yt.title, 
+                        str(message.author.id), 
+                        message.author.name,
+                        content[1],
+                        int(yt.length),
                     )
 
                     return await message.channel.send(
                         'Downloaded {0}'.format(content[1])
                     )
+                else:
+                    return await message.channel.send("must contain valid youtube url")
+            elif content[0].startswith('list'):
+                if content[1].startswith('all'):
+                    db = await connect()
+                    row = await db.fetch('''select * from songs''')
+                    return await message.channel.send(
+                        row
+                    )
             else:
-                return message.channel.send(usage)
+                return await message.channel.send(usage)
         else:
-            return message.channel.send(usage)
+            return await message.channel.send(usage)
