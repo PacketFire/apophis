@@ -62,7 +62,10 @@ class MusicCommand(Command):
                     else:
                         write_playlist_file(content[2], content[3])
                         return message.channel.send(
-                            'Creating new playlist ``{0}`` and adding ``{1}`` to the list.'
+                            '''
+                            Creating new playlist
+                            ``{0}`` and adding ``{1}`` to the list.
+                            '''
                             .format(content[2], content[3])
                         )
                 elif content[1].startswith('del'):
@@ -94,8 +97,8 @@ class MusicCommand(Command):
                     yt = YouTube(content[1])
                     statement = '''
                     insert into songs (
-                        title, 
-                        userid, 
+                        title,
+                        userid,
                         uploader,
                         link,
                         duration
@@ -104,9 +107,9 @@ class MusicCommand(Command):
                     '''
                     db = await connect()
                     await db.execute(
-                        statement, 
-                        yt.title, 
-                        str(message.author.id), 
+                        statement,
+                        yt.title,
+                        str(message.author.id),
                         message.author.name,
                         content[1],
                         int(yt.length),
@@ -116,7 +119,9 @@ class MusicCommand(Command):
                         'Downloaded {0}'.format(content[1])
                     )
                 else:
-                    return await message.channel.send("must contain valid youtube url")
+                    return await message.channel.send(
+                        "must contain valid youtube url"
+                    )
             elif content[0].startswith('list'):
                 if content[1].startswith('all'):
                     db = await connect()
