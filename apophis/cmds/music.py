@@ -40,15 +40,89 @@ def playlist_file_exists(filename: str) -> bool:
         return False
 
 
+async def song_exists(link) -> bool:
+    statement = 'select link from song where link = $1'
+    db = await connect()
+    song = await db.fetchrow(statement, link)
+    await db.close()
+
+    if song['link']:
+        return True
+    else:
+        return False
+
+
+async def play_song(message, title):
+    if title.isdigit():
+        statement = 'select title from songs where id = $1'
+        db = await connect()
+        song = await db.fetchrow(statement, int(title))
+        voice = await message.author.voice.channel.connect()
+        voice.play(FFmpegPCMAudio('data/music/' + song['title'] + '.mp4'))
+        await db.close()
+        return await message.channel.send(
+            'Playing {0}'.format(song['title'])
+        )
+    else:
+        voice = await message.author.voice.channel.connect()
+        voice.play(FFmpegPCMAudio('data/music/' + title))
+        return await message.channel.send(
+            'Playing {0}'.format(title)
+        )
+
+
+async def fetch_song(message, link):
+    if song_exists(link) is False:
+        await message.channel.send(
+            'Downloading {0}'.format(link)
+        )
+
+        YouTube(link).streams.first().download(
+            'data/music/',
+        )
+        yt = YouTube(link)
+
+        statement = '''
+            insert into songs (
+                title,
+                userid,
+                uploader,
+                link,
+                duration
+            )
+            values($1, $2, $3, $4, $5);
+        '''
+
+        db = await connect()
+        await db.execute(
+            statement,
+            yt.title,
+            str(message.author.id),
+            message.author.name,
+            link,
+            int(yt.length),
+        )
+        await db.close()
+
+        return await message.channel.send(
+            '{0} Downloaded {1}'.format(
+                message.author.name,
+                yt.title
+            )
+        )
+    else:
+        return await message.channel.send(
+            'That song already exists in the database.'
+        )
+
+
 class MusicCommand(Command):
     def __init__(self, cmd_data):
         self.cmd_data = cmd_data
 
     async def parse_command(self, message, vc):
         usage = "usage: #music playlist <add/del/play>"
-
         content = list(message.content[7:].split())
-        print(content)
 
         if len(content) >= 2:
             if content[0].startswith('playlist'):
@@ -80,44 +154,10 @@ class MusicCommand(Command):
                 else:
                     return await message.channel.send(usage)
             elif content[0].startswith('play'):
-                voice = await message.author.voice.channel.connect()
-                voice.play(FFmpegPCMAudio('data/music/' + content[1]))
-                return await message.channel.send(
-                    'Playing {0}'.format(content[1])
-                )
+                await play_song(message, content[1])
             elif content[0].startswith('fetch'):
                 if content[1].startswith('https://www.youtube.com/watch?v='):
-                    await message.channel.send(
-                        'Downloading {0}'.format(content[1])
-                    )
-
-                    YouTube(content[1]).streams.first().download(
-                        'data/music/',
-                    )
-                    yt = YouTube(content[1])
-                    statement = '''
-                    insert into songs (
-                        title,
-                        userid,
-                        uploader,
-                        link,
-                        duration
-                    )
-                    values($1, $2, $3, $4, $5);
-                    '''
-                    db = await connect()
-                    await db.execute(
-                        statement,
-                        yt.title,
-                        str(message.author.id),
-                        message.author.name,
-                        content[1],
-                        int(yt.length),
-                    )
-
-                    return await message.channel.send(
-                        'Downloaded {0}'.format(content[1])
-                    )
+                    await fetch_song(message, content[1])
                 else:
                     return await message.channel.send(
                         "must contain valid youtube url"
