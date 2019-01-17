@@ -57,12 +57,18 @@ async def play_song(message, title):
         statement = 'select title from songs where id = $1'
         db = await connect()
         song = await db.fetchrow(statement, int(title))
-        voice = await message.author.voice.channel.connect()
-        voice.play(FFmpegPCMAudio('data/music/' + song['title'] + '.mp4'))
         await db.close()
-        return await message.channel.send(
-            'Playing {0}'.format(song['title'])
-        )
+
+        if song is None:
+            return await message.channel.send(
+                'Song does not exist in database.'
+            )
+        else:
+            voice = await message.author.voice.channel.connect()
+            voice.play(FFmpegPCMAudio('data/music/' + song['title'] + '.mp4'))
+            return await message.channel.send(
+                'Playing {0}'.format(song['title'])
+            )
     else:
         voice = await message.author.voice.channel.connect()
         voice.play(FFmpegPCMAudio('data/music/' + title))
@@ -116,6 +122,14 @@ async def fetch_song(message, link):
         )
 
 
+async def list_all_songs():
+    db = await connect()
+    songs = await db.fetch('''select id,title from songs limit 10''')
+    await db.close()
+
+    return songs
+
+
 class MusicCommand(Command):
     def __init__(self, cmd_data):
         self.cmd_data = cmd_data
@@ -129,13 +143,13 @@ class MusicCommand(Command):
                 if content[1].startswith('add'):
                     if playlist_file_exists(content[2]):
                         write_playlist_file(content[2], content[3])
-                        return message.channel.send(
+                        return await message.channel.send(
                             'Adding ``{0}`` to playlist ``{1}``'
                             .format(content[3], content[2])
                         )
                     else:
                         write_playlist_file(content[2], content[3])
-                        return message.channel.send(
+                        return await message.channel.send(
                             '''
                             Creating new playlist
                             ``{0}`` and adding ``{1}`` to the list.
@@ -143,12 +157,12 @@ class MusicCommand(Command):
                             .format(content[2], content[3])
                         )
                 elif content[1].startswith('del'):
-                    return message.channel.send(
+                    return await message.channel.send(
                         'Removing ``{0}`` from playlist ``{1}``'
                         .format(content[3], content[2])
                     )
                 elif content[1].startswith('play'):
-                    return message.channel.send(
+                    return await message.channel.send(
                         'Playing {0}'.format(content[2])
                     )
                 else:
@@ -164,10 +178,14 @@ class MusicCommand(Command):
                     )
             elif content[0].startswith('list'):
                 if content[1].startswith('all'):
-                    db = await connect()
-                    row = await db.fetch('''select * from songs''')
-                    return await message.channel.send(
-                        row
+                    songs = await list_all_songs()
+                    stitle = '\n'.join([str(song['title']) for song in songs])
+#                    sids = [str(song['id']) for song in songs]
+
+                    await message.channel.send(
+                        '''```{0}```'''.format(
+                            stitle
+                        )
                     )
             else:
                 return await message.channel.send(usage)
