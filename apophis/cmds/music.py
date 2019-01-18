@@ -1,7 +1,7 @@
 import json
+import youtube_dl
 from cmds.command import Command
 from typing import NamedTuple
-from pytube import YouTube
 from discord import FFmpegPCMAudio
 from core.storage import connect
 
@@ -45,7 +45,7 @@ async def song_exists(link) -> bool:
     db = await connect()
     song = await db.fetchrow(statement, link)
     await db.close()
-    print(song)
+
     if song is None:
         return False
     else:
@@ -65,7 +65,7 @@ async def play_song(message, title):
             )
         else:
             voice = await message.author.voice.channel.connect()
-            voice.play(FFmpegPCMAudio('data/music/' + song['title'] + '.mp4'))
+            voice.play(FFmpegPCMAudio('data/music/' + song['title'] + '.mp3'))
             return await message.channel.send(
                 'Playing {0}'.format(song['title'])
             )
@@ -83,10 +83,22 @@ async def fetch_song(message, link):
             'Downloading {0}'.format('<' + link + '>')
         )
 
-        YouTube(link).streams.first().download(
-            'data/music/',
-        )
-        yt = YouTube(link)
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': 'data/music/%(title)s.%(etx)s',
+            'quiet': False
+        }
+
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(link, download=False)
+            title = info.get('title')
+            duration = info.get('duration')
+            ydl.download([link])
 
         statement = '''
             insert into songs (
@@ -102,19 +114,19 @@ async def fetch_song(message, link):
         db = await connect()
         sid = await db.fetch(
             statement,
-            yt.title,
+            title,
             str(message.author.id),
             message.author.name,
             link,
-            int(yt.length),
+            int(duration),
         )
         await db.close()
 
         return await message.channel.send(
-            '{0} Downloaded {1} saving file as {2}'.format(
-                message.author.name,
-                yt.title,
-                sid,
+            '<@{0}> Downloaded {1} ID #{2}'.format(
+                message.author.id,
+                title,
+                sid[0]['id'],
             )
         )
     else:
@@ -125,7 +137,7 @@ async def fetch_song(message, link):
 
 async def list_all_songs():
     db = await connect()
-    songs = await db.fetch('''select id,title from songs limit 10''')
+    songs = await db.fetch('''select id,title from songs''')
     await db.close()
 
     return songs
@@ -180,7 +192,10 @@ class MusicCommand(Command):
             elif content[0].startswith('list'):
                 if content[1].startswith('all'):
                     songs = await list_all_songs()
-                    stitle = '\n'.join(['(' + str(song['id']) + ') - ' +str(song['title']) for song in songs])
+                    stitle = '\n'.join([
+                        '(' + str(song['id']) + ') - ' +
+                        str(song['title']) for song in songs
+                    ])
 
                     await message.channel.send(
                         '''```{0}```'''.format(
