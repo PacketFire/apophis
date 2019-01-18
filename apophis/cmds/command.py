@@ -34,5 +34,10 @@ commands = [
         'trigger': 'define',
         'module': 'cmds.define',
         'handler': 'DefineCommand'
+    },
+    {
+        'trigger': 'music',
+        'module': 'cmds.music',
+        'handler': 'MusicCommand'
     }
 ]

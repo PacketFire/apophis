@@ -26,7 +26,8 @@ class BotClient(discord.Client):
                             c(cmds.command.commands[i])
                             await c.parse_command(
                                 cmds.command.commands[i],
-                                message
+                                message,
+                                discord.VoiceChannel,
                             )
 
         return print(
