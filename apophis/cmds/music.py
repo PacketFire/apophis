@@ -41,15 +41,15 @@ def playlist_file_exists(filename: str) -> bool:
 
 
 async def song_exists(link) -> bool:
-    statement = 'select link from song where link = $1'
+    statement = 'select link from songs where link = $1'
     db = await connect()
     song = await db.fetchrow(statement, link)
     await db.close()
-
-    if song['link']:
-        return True
-    else:
+    print(song)
+    if song is None:
         return False
+    else:
+        return True
 
 
 async def play_song(message, title):
@@ -78,9 +78,9 @@ async def play_song(message, title):
 
 
 async def fetch_song(message, link):
-    if song_exists(link) is False:
+    if (await song_exists(link)) is False:
         await message.channel.send(
-            'Downloading {0}'.format(link)
+            'Downloading {0}'.format('<' + link + '>')
         )
 
         YouTube(link).streams.first().download(
@@ -96,11 +96,11 @@ async def fetch_song(message, link):
                 link,
                 duration
             )
-            values($1, $2, $3, $4, $5);
+            values($1, $2, $3, $4, $5) returning id;
         '''
 
         db = await connect()
-        await db.execute(
+        sid = await db.fetch(
             statement,
             yt.title,
             str(message.author.id),
@@ -111,9 +111,10 @@ async def fetch_song(message, link):
         await db.close()
 
         return await message.channel.send(
-            '{0} Downloaded {1}'.format(
+            '{0} Downloaded {1} saving file as {2}'.format(
                 message.author.name,
-                yt.title
+                yt.title,
+                sid,
             )
         )
     else:
@@ -179,8 +180,7 @@ class MusicCommand(Command):
             elif content[0].startswith('list'):
                 if content[1].startswith('all'):
                     songs = await list_all_songs()
-                    stitle = '\n'.join([str(song['title']) for song in songs])
-#                    sids = [str(song['id']) for song in songs]
+                    stitle = '\n'.join(['(' + str(song['id']) + ') - ' +str(song['title']) for song in songs])
 
                     await message.channel.send(
                         '''```{0}```'''.format(
