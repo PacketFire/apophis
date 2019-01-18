@@ -5,6 +5,7 @@ from collections import namedtuple
 
 PERMISSION = namedtuple('Permission', 'owner admin normal')
 
+
 @dataclass(frozen=True)
 class Permission:
     levels = List[str]
