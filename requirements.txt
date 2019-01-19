@@ -4,10 +4,17 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
+asyncpg==0.18.3
+certifi==2018.11.29       # via requests
+chardet==3.0.4            # via requests
 click==7.0
 flake8==3.6.0
+idna==2.8                 # via requests
 mccabe==0.6.1             # via flake8
-pycodestyle==2.4.0        # via flake8
-pyflakes==2.0.0           # via flake8
 mypy-extensions==0.4.1
 mypy==0.630
+pycodestyle==2.4.0        # via flake8
+pyflakes==2.0.0           # via flake8
+requests==2.21.0
+typed-ast==1.1.2          # via mypy
+urllib3==1.24.1           # via requests
