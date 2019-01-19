@@ -2,6 +2,7 @@ import json
 import youtube_dl
 from cmds.command import Command
 from typing import NamedTuple
+from typing import Optional
 from discord import FFmpegPCMAudio
 from core.storage import connect
 
@@ -40,7 +41,7 @@ def playlist_file_exists(filename: str) -> bool:
         return False
 
 
-async def song_exists(link) -> bool:
+async def song_exists(link: str) -> bool:
     statement = 'select link from songs where link = $1'
     db = await connect()
     song = await db.fetchrow(statement, link)
@@ -52,30 +53,28 @@ async def song_exists(link) -> bool:
         return True
 
 
-async def play_song(message, title):
-    if title.isdigit():
-        statement = 'select id,title from songs where id = $1'
-        db = await connect()
-        song = await db.fetchrow(statement, int(title))
-        await db.close()
+async def get_song(id: int) -> Optional[any]:
+    statement = 'select id, title from songs where id = $1'
+    db = await connect()
+    song = await db.fetchrow(statement, id)
+    await db.close()
 
-        if song is None:
-            return await message.channel.send(
-                'Song does not exist in database.'
-            )
-        else:
-            voice = await message.author.voice.channel.connect()
-            voice.play(FFmpegPCMAudio('data/music/{0}.mp3'.format(song['id'])))
-            return await message.channel.send(
-                'Playing {0}...'.format(song['title'])
-            )
+    return song
+
+
+async def play_song(message: str, id: int):
+    song = await get_song(id)
+
+    if song is None:
+        return await message.channel.send(
+            'The specified song could not be found.'
+        )
     else:
         voice = await message.author.voice.channel.connect()
-        voice.play(FFmpegPCMAudio('data/music/' + title))
+        voice.play(FFmpegPCMAudio('data/music/{}.mp3'.format(song['id'])))
         return await message.channel.send(
-            'Playing {0}...'.format(title)
+            'Playing {0}...'.format(song['title'])
         )
-
 
 async def fetch_song(message, link):
     if (await song_exists(link)) is False:
@@ -149,7 +148,7 @@ class MusicCommand(Command):
     def __init__(self, cmd_data):
         self.cmd_data = cmd_data
 
-    async def parse_command(self, message, vc):
+    async def parse_command(self, message):
         usage = "usage: #music playlist <add/del/play>"
         content = list(message.content[7:].split())
 
@@ -183,7 +182,7 @@ class MusicCommand(Command):
                 else:
                     return await message.channel.send(usage)
             elif content[0].startswith('play'):
-                await play_song(message, content[1])
+                await play_song(message, int(content[1]))
             elif content[0].startswith('fetch'):
                 if content[1].startswith('https://www.youtube.com/watch?v='):
                     await fetch_song(message, content[1])

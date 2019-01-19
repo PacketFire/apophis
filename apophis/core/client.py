@@ -33,5 +33,4 @@ class BotClient(discord.Client):
                             await c.parse_command(
                                 cmds.command.commands[i],
                                 message,
-                                discord.VoiceChannel,
                             )
