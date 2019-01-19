@@ -54,7 +54,7 @@ async def song_exists(link) -> bool:
 
 async def play_song(message, title):
     if title.isdigit():
-        statement = 'select title from songs where id = $1'
+        statement = 'select id,title from songs where id = $1'
         db = await connect()
         song = await db.fetchrow(statement, int(title))
         await db.close()
@@ -65,40 +65,28 @@ async def play_song(message, title):
             )
         else:
             voice = await message.author.voice.channel.connect()
-            voice.play(FFmpegPCMAudio('data/music/' + song['title'] + '.mp3'))
+            voice.play(FFmpegPCMAudio('data/music/{0}.mp3'.format(song['id'])))
             return await message.channel.send(
-                'Playing {0}'.format(song['title'])
+                'Playing {0}...'.format(song['title'])
             )
     else:
         voice = await message.author.voice.channel.connect()
         voice.play(FFmpegPCMAudio('data/music/' + title))
         return await message.channel.send(
-            'Playing {0}'.format(title)
+            'Playing {0}...'.format(title)
         )
 
 
 async def fetch_song(message, link):
     if (await song_exists(link)) is False:
         await message.channel.send(
-            'Downloading {0}'.format('<' + link + '>')
+            'Downloading {0}...'.format('<' + link + '>')
         )
 
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'outtmpl': 'data/music/%(title)s.%(etx)s',
-            'quiet': False
-        }
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        with youtube_dl.YoutubeDL({}) as ydl:
             info = ydl.extract_info(link, download=False)
             title = info.get('title')
             duration = info.get('duration')
-            ydl.download([link])
 
         statement = '''
             insert into songs (
@@ -122,8 +110,22 @@ async def fetch_song(message, link):
         )
         await db.close()
 
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': 'data/music/' + str(sid[0]['id']) + '.%(ext)s',
+            'quiet': False
+        }
+
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([link])
+
         return await message.channel.send(
-            '<@{0}> Downloaded {1} ID #{2}'.format(
+            '<@{0}> Downloaded {1} ID #{2}.'.format(
                 message.author.id,
                 title,
                 sid[0]['id'],

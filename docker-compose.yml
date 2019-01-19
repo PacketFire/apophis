@@ -3,6 +3,7 @@ services:
   postgres:
     image: postgres:10.4
     environment:
+      POSTGRES_DB: apophis
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
