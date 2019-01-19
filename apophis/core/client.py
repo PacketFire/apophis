@@ -9,6 +9,12 @@ class BotClient(discord.Client):
         print(self.user.id)
 
     async def on_message(self, message):
+        print(
+            "#" + str(message.channel) +
+            " | <" + message.author.name +
+            "> " + message.content
+        )
+
         if message.author.id == self.user.id:
             return
         else:
@@ -29,9 +35,3 @@ class BotClient(discord.Client):
                                 message,
                                 discord.VoiceChannel,
                             )
-
-        return print(
-            "#" + str(message.channel) +
-            " | <" + message.author.name +
-            "> " + message.content
-        )
