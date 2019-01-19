@@ -9,6 +9,7 @@ venv
 .mypy_cache
 *.egg-info
 *.pyc
+__pycache__
 
 # Data
 data

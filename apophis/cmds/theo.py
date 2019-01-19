@@ -11,6 +11,6 @@ class TheoCommand(Command):
             with open('data/theo.txt', 'r') as fh:
                 line = random.choice(list(fh))
         except IOError:
-            return 'unable to open data file'
+            line = 'unable to open data file'
 
         return await message.channel.send(line)

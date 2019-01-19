@@ -7,7 +7,7 @@ pip-compile:
 	source venv/bin/activate; pip-compile requirements.in
 
 pip-install:
-	source venv/bin/activate; pip install -r requirements.txt; pip install -U git+https://github.com/Rapptz/discord.py@rewrite
+	source venv/bin/activate; pip install -r requirements.txt; pip install -r requirements-e.txt
 
 lint:
 	source venv/bin/activate; flake8 apophis/
