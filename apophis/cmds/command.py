@@ -38,5 +38,3 @@ commands = [
         'handler': 'MusicCommand'
     }
 ]
-
-

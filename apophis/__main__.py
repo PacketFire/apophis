@@ -11,17 +11,22 @@ pool = None
 
 @client.event
 async def on_ready():
-    print('Logged in as ID: {}, username: {}'.format(client.user.id, client.user.name))
+    print('Logged in as ID: {}, username: {}'.format(client.user.id,
+                                                     client.user.name))
 
     global pool
-    pool = await asyncpg.create_pool('postgresql://postgres:postgres@localhost:15432/apophis')
+    pool = await asyncpg.create_pool(
+        'postgresql://postgres:postgres@localhost:15432/apophis'
+    )
 
     print('Connected to database')
 
 
 @client.event
 async def on_message(message):
-    print("#{0} | <{1}> {2}".format(message.channel, message.author.name, message.content))
+    print("#{0} | <{1}> {2}".format(message.channel,
+                                    message.author.name,
+                                    message.content))
 
     if message.author.id == client.user.id:
         return
