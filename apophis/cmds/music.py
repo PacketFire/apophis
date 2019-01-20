@@ -62,7 +62,7 @@ async def get_song(id: int) -> Optional[any]:
     return song
 
 
-async def play_song(message: str, id: int):
+async def play_song(message, id: int):
     song = await get_song(id)
 
     if song is None:
@@ -76,7 +76,8 @@ async def play_song(message: str, id: int):
             'Playing {0}...'.format(song['title'])
         )
 
-async def fetch_song(message, link):
+
+async def fetch_song(message, link: str):
     if (await song_exists(link)) is False:
         await message.channel.send(
             'Downloading {0}...'.format('<' + link + '>')
