@@ -3,10 +3,7 @@ from cmds.command import Command
 
 
 class TheoCommand(Command):
-    def __init__(self, cmd_data):
-        self.cmd_data = cmd_data
-
-    async def parse_command(self, message, vc) -> str:
+    async def handle(self, context, message) -> str:
         try:
             with open('data/theo.txt', 'r') as fh:
                 line = random.choice(list(fh))
