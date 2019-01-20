@@ -100,6 +100,13 @@ async def fetch_song(context, message, link: str):
         )
 
 
+async def search_songs(context, query):
+    statement = 'select id,title from songs where title ilike \'%{}%\''.format(query.lower())
+    songs = await context['db'].fetch(statement)
+
+    return songs
+
+
 async def list_all_songs(context):
     songs = await context['db'].fetch('''select id,title from songs''')
 
@@ -124,14 +131,14 @@ class MusicCommand(Command):
             elif content[0].startswith('list'):
                 if content[1].startswith('all'):
                     songs = await list_all_songs(context)
-                    stitle = '\n'.join([
+                    results = '\n'.join([
                         '(' + str(song['id']) + ') - ' +
                         str(song['title']) for song in songs
                     ])
 
                     await message.channel.send(
                         '''```{0}```'''.format(
-                            stitle
+                            results
                         )
                     )
             elif content[0].startswith('stop'):
@@ -142,6 +149,32 @@ class MusicCommand(Command):
                     await context['client'].voice_clients[n].disconnect()
             elif content[0].startswith('join'):
                 await message.author.voice.channel.connect()
+            elif content[0].startswith('search'):
+                songs = await search_songs(context, message.content[14:])
+                if len(songs) > 0:
+                    results = '\n'.join([
+                        '(' + str(song['id']) + ') - ' +
+                        str(song['title']) for song in songs
+                    ])
+
+                    await message.channel.send(
+                        '''```{0}```'''.format(
+                            results
+                        )
+                    )
+                else:
+                    await message.channel.send(
+                        'No songs were found.'
+                    )
+            elif content[0].startswith('lucky'):
+                songs = await search_songs(context, message.content[13:])
+                if len(songs) > 0:
+                    await play_song(context, message, songs[0]['id'])
+                else:
+                    await message.channel.send(
+                        'No songs were found.'
+                    )
+
             else:
                 return await message.channel.send(usage)
         else:
