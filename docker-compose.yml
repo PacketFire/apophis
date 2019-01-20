@@ -9,4 +9,12 @@ services:
     ports:
       - "15432:5432"
     volumes:
-      - ./data/pg:/var/lib/postgresql/data
+      - ./run/pg:/var/lib/postgresql/data
+  apophis:
+    image: packetfire/apophis
+    build:
+      context: ./
+    volumes:
+      - ./run/music:/var/lib/apophis/music
+    environment:
+      MUSIC_DATA_DIR: /var/lib/apophis/music
