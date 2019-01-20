@@ -16,7 +16,13 @@ async def on_ready():
     print('Logged in as ID: {}, username: {}'.format(client.user.id,
                                                      client.user.name))
 
-    db_host = os.environ.get('DB_HOST', config.get('db_host', 'postgresql://postgres:postgres@localhost:15432/apophis'))
+    db_host = os.environ.get(
+        'DB_HOST',
+        config.get(
+            'db_host',
+            'postgresql://postgres:postgres@localhost:15432/apophis'
+        )
+    )
 
     global pool
     pool = await asyncpg.create_pool(db_host)
