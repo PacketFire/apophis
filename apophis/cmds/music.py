@@ -101,7 +101,8 @@ async def fetch_song(context, message, link: str):
 
 
 async def search_songs(context, query):
-    statement = 'select id,title from songs where title ilike \'%{}%\''.format(query.lower())
+    statement = 'select id,title from songs where title ilike \'%{}%\''\
+        .format(query.lower())
     songs = await context['db'].fetch(statement)
 
     return songs
