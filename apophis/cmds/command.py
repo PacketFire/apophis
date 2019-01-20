@@ -3,10 +3,7 @@ from core.readers import fetch_config
 
 
 class Command:
-    def __init__(self, cmd_data):
-        self.cmd_data = cmd_data
-
-    def parse_command(self):
+    def handle(self):
         pass
 
 

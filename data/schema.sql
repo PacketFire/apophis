@@ -7,6 +7,8 @@ CREATE TABLE songs (
  uploader varchar(25) not null
 );
 
+CREATE INDEX songs_title on songs (title);
+
 CREATE TABLE permissions (
     id serial not null primary key,
     username varchar(25) not null,

@@ -3,10 +3,7 @@ from cmds.command import Command
 
 
 class DefineCommand(Command):
-    def __init__(self, cmd_data):
-        self.cmd_data = cmd_data
-
-    def parse_command(self, message, vc):
+    def handle(self, context, message):
         content = list(message.content[8:].split())
         last = content[-1]
         r = requests.get(
