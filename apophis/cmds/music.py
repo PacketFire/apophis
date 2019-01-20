@@ -39,7 +39,7 @@ async def play_song(context, message, song_id: int):
 
         path = os.environ.get(
             'MUSIC_DATA_DIR',
-            context['config'].get('music_data_dir', 'data/music')
+            context['config'].get('music_data_dir', 'run/music')
         )
         voice.play(FFmpegPCMAudio('{}/{}.mp3'.format(path, song['id'])))
         return await message.channel.send(
@@ -80,7 +80,7 @@ async def fetch_song(context, message, link: str):
 
         path = os.environ.get(
             'MUSIC_DATA_DIR',
-            context['config'].get('music_data_dir', 'data/music')
+            context['config'].get('music_data_dir', 'run/music')
         )
         ydl_opts = {
             'format': 'bestaudio/best',
