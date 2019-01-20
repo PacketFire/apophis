@@ -1,5 +1,6 @@
 import importlib
 from core.readers import fetch_config
+from core.storage import connect
 
 
 class Command:
@@ -14,6 +15,15 @@ def command_handler(module, handler) -> Command:
     m = importlib.import_module(module)
     cmd = getattr(m, handler)
     return cmd
+
+
+async def check_permissions(user, command) -> int:
+    db = await connect()
+    statement = 'select level from permissions where username = $1;'
+
+    rows = await db.fetch(statement, user)
+
+    return int(rows[0]['level'])
 
 
 config = fetch_config()
@@ -39,5 +49,10 @@ commands = [
         'trigger': 'music',
         'module': 'cmds.music',
         'handler': 'MusicCommand'
+    },
+    {
+        'trigger': 'access',
+        'module': 'cmds.access',
+        'handler': 'AccessCommand'
     }
 ]
