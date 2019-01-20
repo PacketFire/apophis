@@ -2,9 +2,11 @@ import asyncio
 import asyncpg
 import discord
 import cmds.command
-import sys
+from core.readers import fetch_config
+import os
 
 
+config = fetch_config()
 client = discord.Client()
 pool = None
 
@@ -14,10 +16,10 @@ async def on_ready():
     print('Logged in as ID: {}, username: {}'.format(client.user.id,
                                                      client.user.name))
 
+    db_host = os.environ.get('DB_HOST', config.get('db_host', 'postgresql://postgres:postgres@localhost:15432/apophis'))
+
     global pool
-    pool = await asyncpg.create_pool(
-        'postgresql://postgres:postgres@localhost:15432/apophis'
-    )
+    pool = await asyncpg.create_pool(db_host)
 
     print('Connected to database')
 
@@ -31,8 +33,9 @@ async def on_message(message):
     if message.author.id == client.user.id:
         return
     else:
-        for n in range(len(cmds.command.prefix)):
-            if message.content.startswith(cmds.command.prefix[n]):
+        prefix = config['prefix']
+        for n in range(len(prefix)):
+            if message.content.startswith(prefix[n]):
                 for i in range(len(cmds.command.commands)):
                     if message.content[1:].startswith(
                             cmds.command.commands[i]['trigger']
@@ -45,6 +48,7 @@ async def on_message(message):
                         async with pool.acquire() as connection:
                             context = {
                                 'client': client,
+                                'config': config,
                                 'db': connection
                             }
 
@@ -56,8 +60,10 @@ async def on_message(message):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(client.start(sys.argv[1]))
+    bot_token = os.environ.get('BOT_TOKEN', config['bot_token'])
+
+    if bot_token is None:
+        print('You must specify a bot token in order to start the bot.')
     else:
-        print("To start bot a token is required.")
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(client.start(config['bot_token']))
