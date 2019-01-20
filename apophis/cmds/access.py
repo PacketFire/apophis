@@ -18,7 +18,7 @@ class AccessCommand(Command):
                     statement = 'select * from permissions'
                     rows = await db.fetch(statement)
                     await db.close()
-                    
+
                     output = '\n'.join([
                         str(row['username']) + ': level ' +
                         str(row['level']) for row in rows

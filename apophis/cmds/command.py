@@ -23,7 +23,7 @@ async def check_permissions(user, command) -> int:
 
     rows = await db.fetch(statement, user)
     await db.close()
-    
+
     return int(rows[0]['level'])
 
 
