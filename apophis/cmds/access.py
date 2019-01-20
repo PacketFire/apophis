@@ -17,7 +17,8 @@ class AccessCommand(Command):
                     db = await connect()
                     statement = 'select * from permissions'
                     rows = await db.fetch(statement)
-
+                    await db.close()
+                    
                     output = '\n'.join([
                         str(row['username']) + ': level ' +
                         str(row['level']) for row in rows
@@ -30,7 +31,6 @@ class AccessCommand(Command):
                 return await message.channel.send(
                     'usage: access <list/add/del> parameters'
                 )
-
         else:
             return await message.channel.send(
                 'You do not have permission to use that command.'

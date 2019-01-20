@@ -22,7 +22,8 @@ async def check_permissions(user, command) -> int:
     statement = 'select level from permissions where username = $1;'
 
     rows = await db.fetch(statement, user)
-
+    await db.close()
+    
     return int(rows[0]['level'])
 
 
