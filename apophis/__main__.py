@@ -40,15 +40,16 @@ async def on_message(message):
         return
     else:
         prefix = config['prefix']
+        commands = cmds.command.commands
         for n in range(len(prefix)):
             if message.content.startswith(prefix[n]):
-                for i in range(len(cmds.command.commands)):
+                for i in range(len(commands)):
                     if message.content[1:].startswith(
-                            cmds.command.commands[i]['trigger']
+                            commands[i]['trigger']
                     ):
                         c = cmds.command.command_handler(
-                            cmds.command.commands[i]['module'],
-                            cmds.command.commands[i]['handler']
+                            commands[i]['module'],
+                            commands[i]['handler']
                         )
 
                         async with pool.acquire() as connection:
@@ -58,11 +59,29 @@ async def on_message(message):
                                 'db': connection
                             }
 
-                            await c.handle(
-                                cmds.command.commands[i],
-                                context,
-                                message,
-                            )
+                            if commands[i]['permissions'] == 0:
+                                await c.handle(
+                                    commands[i],
+                                    context,
+                                    message,
+                                )
+                            else:
+                                perms = await cmds.command.check_permissions(
+                                    context, message.author.id
+                                )
+                                if perms is True:
+                                    await c.handle(
+                                        commands[i],
+                                        context,
+                                        message,
+                                    )
+                                else:
+                                    return await message.channel.send(
+                                        '''
+                                        You do not have access
+                                        to utilize that command.
+                                        '''
+                                    )
 
 
 if __name__ == "__main__":
