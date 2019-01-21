@@ -59,9 +59,9 @@ async def on_message(message):
                                 'db': connection
                             }
 
-
                             perms = await cmds.command.check_permissions(
-                                context, message.author.id
+                                context,
+                                message.author.id
                             )
 
                             if perms >= commands[i]['permissions']:

@@ -17,15 +17,13 @@ async def check_permissions(context, user) -> int:
     select level from permissions where username = $1;
     '''
     rows = await context['db'].fetch(statement, str(user))
-    
+
     if rows[0]['level'] == 1:
         return 1
     elif rows[0]['level'] == 2:
         return 2
     else:
         return 0
-
-        
 
 
 commands = [
