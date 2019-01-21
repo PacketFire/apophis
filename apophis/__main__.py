@@ -59,29 +59,21 @@ async def on_message(message):
                                 'db': connection
                             }
 
-                            if commands[i]['permissions'] == 0:
+
+                            perms = await cmds.command.check_permissions(
+                                context, message.author.id
+                            )
+
+                            if perms >= commands[i]['permissions']:
                                 await c.handle(
                                     commands[i],
                                     context,
                                     message,
                                 )
                             else:
-                                perms = await cmds.command.check_permissions(
-                                    context, message.author.id
+                                return await message.channel.send(
+                                    'Unauthorized.'
                                 )
-                                if perms is True:
-                                    await c.handle(
-                                        commands[i],
-                                        context,
-                                        message,
-                                    )
-                                else:
-                                    return await message.channel.send(
-                                        '''
-                                        You do not have access
-                                        to utilize that command.
-                                        '''
-                                    )
 
 
 if __name__ == "__main__":

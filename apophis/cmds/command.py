@@ -12,16 +12,20 @@ def command_handler(module, handler) -> Command:
     return cmd
 
 
-async def check_permissions(context, user) -> bool:
+async def check_permissions(context, user) -> int:
     statement = '''
     select level from permissions where username = $1;
     '''
     rows = await context['db'].fetch(statement, str(user))
-
-    if rows[0]['level'] >= 1:
-        return True
+    
+    if rows[0]['level'] == 1:
+        return 1
+    elif rows[0]['level'] == 2:
+        return 2
     else:
-        return False
+        return 0
+
+        
 
 
 commands = [
