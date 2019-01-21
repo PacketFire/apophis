@@ -12,6 +12,14 @@ def command_handler(module, handler) -> Command:
     return cmd
 
 
+async def check_permissions(user, context) -> int:
+    statement = '''
+    select level from permissions where username = $1;
+    '''
+    rows = await context['db'].fetch(statement, user)
+    return int(rows[0]['level'])
+
+
 commands = [
     {
         'trigger': 'theo',
@@ -32,5 +40,10 @@ commands = [
         'trigger': 'music',
         'module': 'cmds.music',
         'handler': 'MusicCommand'
+    },
+    {
+        'trigger': 'access',
+        'module': 'cmds.access',
+        'handler': 'AccessCommand'
     }
 ]
