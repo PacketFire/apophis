@@ -24,7 +24,6 @@ async def get_permissions(context, user) -> int:
         return row['level']
 
 
-
 commands = [
     {
         'trigger': 'theo',
