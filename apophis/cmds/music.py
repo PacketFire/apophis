@@ -73,7 +73,7 @@ async def after_song(old_context, message):
         }
 
         await stop_playing(new_context)
-        next_song_id = await get_next_song()
+        next_song_id = get_next_song()
         if next_song_id is None:
             pass
         else:
@@ -87,7 +87,7 @@ async def stop_playing(context) -> None:
             voice.stop()
 
 
-async def get_next_song() -> Optional[int]:
+def get_next_song() -> Optional[int]:
     try:
         return song_queue.get_nowait()
     except QueueEmpty:
@@ -214,7 +214,7 @@ class MusicCommand(Command):
                     return await message.add_reaction('\u2705')
             elif content[0].startswith('next'):
                 await stop_playing(context)
-                next_song_id = await get_next_song()
+                next_song_id = get_next_song()
                 if next_song_id is None:
                     return message.channel.send('No more songs in queue.')
                 else:
