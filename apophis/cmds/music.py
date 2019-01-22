@@ -8,7 +8,7 @@ import os
 import youtube_dl
 
 
-song_queue = Queue(256)
+song_queue: Queue = Queue(256)
 
 
 async def song_exists(context, link: str) -> bool:
@@ -21,7 +21,7 @@ async def song_exists(context, link: str) -> bool:
         return True
 
 
-async def get_song(context, song_id: int) -> Optional[any]:
+async def get_song(context, song_id: int):
     statement = 'select id,title from songs where id = $1'
     song = await context['db'].fetchrow(statement, song_id)
 
@@ -51,7 +51,8 @@ async def play_song(context, message, song_id: int):
         return song
 
 
-# By the time this handler is invoked, the database connection that was acquired has already been released.
+# By the time this handler is invoked,
+# the database connection that was acquired has already been released.
 # We need to acquire a new one.
 def handle_after_song(context, message):
     c = after_song(context, message)
@@ -86,7 +87,7 @@ async def stop_playing(context) -> None:
             voice.stop()
 
 
-async def get_next_song() -> int:
+async def get_next_song() -> Optional[int]:
     try:
         return song_queue.get_nowait()
     except QueueEmpty:
@@ -181,27 +182,35 @@ async def queue_song(context, song_id: int) -> None:
 
 class MusicCommand(Command):
     async def handle(self, context, message):
-        usage = "usage: #music [play|fetch|queue|next|list|stop|quit|join|search|lucky|qlucky]"
+        usage = 'usage: #music ' \
+                '[play|fetch|queue|next|list|stop|' \
+                'quit|join|search|lucky|qlucky]'
         content = list(message.content[7:].split())
 
         if len(content) >= 1:
             if content[0].startswith('play'):
                 song = await play_song(context, message, int(content[1]))
                 if song is None:
-                    return await message.channel.send('That song does not exist.')
+                    return await message.channel.send(
+                        'That song does not exist.'
+                    )
                 else:
-                    return await message.channel.send('Now playing: {}', song['title'])
+                    return await message.channel.send(
+                        'Now playing: {}'.format(song['title'])
+                    )
             elif content[0].startswith('fetch'):
                 if content[1].startswith('https://www.youtube.com/watch?v='):
                     return await fetch_song(context, message, content[1])
                 else:
                     return await message.channel.send(
-                        "You must specify a valid YouTube video link."
+                        'You must specify a valid YouTube video link.'
                     )
             elif content[0].startswith('queue'):
                 song = await queue_song(context, int(content[1]))
                 if song is None:
-                    return await message.channel.send("The specified song does not exist.")
+                    return await message.channel.send(
+                        'The specified song does not exist.'
+                    )
                 else:
                     return await message.add_reaction('\u2705')
             elif content[0].startswith('next'):
@@ -233,7 +242,9 @@ class MusicCommand(Command):
                 return await message.add_reaction('\u2705')
             elif content[0].startswith('join'):
                 if len(context['client'].voice_clients) > 0:
-                    return await message.channel.send('I am already in a voice channel.')
+                    return await message.channel.send(
+                        'I am already in a voice channel.'
+                    )
                 else:
                     return await message.author.voice.channel.connect()
             elif content[0].startswith('search'):
@@ -267,7 +278,9 @@ class MusicCommand(Command):
                     print(songs[0]['id'])
                     song = await queue_song(context, songs[0]['id'])
                     if song is None:
-                        return await message.channel.send("The specified song does not exist.")
+                        return await message.channel.send(
+                            'The specified song does not exist.'
+                        )
                     else:
                         return await message.add_reaction('\u2705')
                 else:

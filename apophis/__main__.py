@@ -24,15 +24,16 @@ class BotClient(discord.Client):
 
         if message.author.id != self.user.id:
             prefix = self.config['prefix']
+            commands = cmds.command.commands
             for n in range(len(prefix)):
                 if message.content.startswith(prefix[n]):
-                    for i in range(len(cmds.command.commands)):
+                    for i in range(len(commands)):
                         if message.content[1:].startswith(
-                                cmds.command.commands[i]['trigger']
+                                commands[i]['trigger']
                         ):
                             c = cmds.command.command_handler(
-                                cmds.command.commands[i]['module'],
-                                cmds.command.commands[i]['handler']
+                                commands[i]['module'],
+                                commands[i]['handler']
                             )
 
                             async with self.pool.acquire() as connection:
@@ -42,16 +43,25 @@ class BotClient(discord.Client):
                                     'db': connection
                                 }
 
-                                await c.handle(
-                                    cmds.command.commands[i],
+                                perms = await cmds.command.get_permissions(
                                     context,
-                                    message,
+                                    message.author.id
                                 )
+
+                                if perms >= commands[i]['permissions']:
+                                    await c.handle(
+                                        commands[i],
+                                        context,
+                                        message,
+                                    )
+                                else:
+                                    return await message.channel.send(
+                                        'Unauthorized.'
+                                    )
 
 
 async def run():
     config = fetch_config()
-
     bot_token = os.environ.get('BOT_TOKEN', config['bot_token'])
 
     if bot_token is None:
