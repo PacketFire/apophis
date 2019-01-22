@@ -59,7 +59,7 @@ async def on_message(message):
                                 'db': connection
                             }
 
-                            perms = await cmds.command.check_permissions(
+                            perms = await cmds.command.get_permissions(
                                 context,
                                 message.author.id
                             )
