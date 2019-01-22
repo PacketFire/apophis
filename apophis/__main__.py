@@ -11,6 +11,28 @@ client = discord.Client()
 pool = None
 
 
+async def store_messages(context, sid, server, uid, user, content):
+    statement = '''
+    insert into messages ( 
+        guildid, 
+        guildname, 
+        userid, 
+        username, 
+        content
+    )
+    values ($1, $2, $3, $4, $5)
+    '''
+
+    await context['db'].execute(
+        statement,
+        sid,
+        server,
+        uid,
+        user,
+        content
+    )
+
+
 @client.event
 async def on_ready():
     print('Logged in as ID: {}, username: {}'.format(client.user.id,
@@ -32,32 +54,43 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    print("#{0} | <{1}> {2}".format(message.channel,
-                                    message.author.name,
-                                    message.content))
+    print("#{0} | <{1}> {2}".format(
+        message.channel,
+        message.author.name,
+        message.content
+    ))
 
-    if message.author.id == client.user.id:
-        return
-    else:
-        prefix = config['prefix']
-        commands = cmds.command.commands
-        for n in range(len(prefix)):
-            if message.content.startswith(prefix[n]):
-                for i in range(len(commands)):
-                    if message.content[1:].startswith(
+    async with pool.acquire() as connection:
+        context = {
+            'client': client,
+            'config': config,
+            'db': connection
+        }
+
+        await store_messages(
+            context,
+            str(message.guild.id),
+            message.guild.name,
+            str(message.author.id),
+            message.author.name,
+            message.content
+        )
+
+        if message.author.id == client.user.id:
+            return
+        else:
+            prefix = config['prefix']
+            commands = cmds.command.commands
+            for n in range(len(prefix)):
+                if message.content.startswith(prefix[n]):
+                    for i in range(len(commands)):
+                        if message.content[1:].startswith(
                             commands[i]['trigger']
-                    ):
-                        c = cmds.command.command_handler(
-                            commands[i]['module'],
-                            commands[i]['handler']
-                        )
-
-                        async with pool.acquire() as connection:
-                            context = {
-                                'client': client,
-                                'config': config,
-                                'db': connection
-                            }
+                        ):
+                            c = cmds.command.command_handler(
+                                commands[i]['module'],
+                                commands[i]['handler']
+                            )
 
                             perms = await cmds.command.get_permissions(
                                 context,
