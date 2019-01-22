@@ -14,17 +14,16 @@ class DefineCommand(Command):
             term = ' '.join(content)
 
         r = requests.get(
-            "http://api.urbandictionary.com/v0/define?term={}"
-            .format(term)
+            f"http://api.urbandictionary.com/v0/define?term={term}"
         )
         data = r.json()
         definitions = data.get("list", [])
         total = len(definitions) if definitions else 0
 
         if total == 0:
-            reply = "{0} is not defined yet".format(term)
+            reply = f"{term} is not defined yet"
         elif index > total or index < 1:
-            reply = "cannot find defintion on index {0}".format(index)
+            reply = f"cannot find defintion on index {index}"
         else:
             definition = definitions[index-1].get("definition")
             reply = f"{term} [{index}/{total}]: {definition}"
