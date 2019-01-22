@@ -133,8 +133,7 @@ async def fetch_song(context, message, link: str):
             'format': 'bestaudio/best',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
+                'preferredcodec': 'mp3'
             }],
             'outtmpl': path + '/' + str(sid[0]['id']) + '.%(ext)s',
             'quiet': False
