@@ -54,11 +54,5 @@ commands = [
         'module': 'cmds.access',
         'handler': 'AccessCommand',
         'permissions': 2
-    },
-    {
-        'trigger': 'shorten',
-        'module': 'cmds.urlshort',
-        'handler': 'ShortenCommand',
-        'permissions': 0
     }
 ]
