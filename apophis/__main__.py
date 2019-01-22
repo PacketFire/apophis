@@ -13,11 +13,11 @@ pool = None
 
 async def store_messages(context, sid, server, uid, user, content):
     statement = '''
-    insert into messages ( 
-        guildid, 
-        guildname, 
-        userid, 
-        username, 
+    insert into messages (
+        guildid,
+        guildname,
+        userid,
+        username,
         content
     )
     values ($1, $2, $3, $4, $5)
