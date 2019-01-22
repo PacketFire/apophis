@@ -18,30 +18,41 @@ class BotClient(discord.Client):
                                                          self.user.name))
 
     async def on_message(self, message):
-        print("#{0} | <{1}> {2}".format(message.channel,
-                                        message.author.name,
-                                        message.content))
+        print("#{0} | <{1}> {2}".format(
+            message.channel,
+            message.author.name,
+            message.content
+        ))
 
-        if message.author.id != self.user.id:
-            prefix = self.config['prefix']
-            commands = cmds.command.commands
-            for n in range(len(prefix)):
-                if message.content.startswith(prefix[n]):
-                    for i in range(len(commands)):
-                        if message.content[1:].startswith(
-                                commands[i]['trigger']
-                        ):
-                            c = cmds.command.command_handler(
-                                commands[i]['module'],
-                                commands[i]['handler']
-                            )
+        async with self.pool.acquire() as connection:
+            context = {
+                'client': self,
+                'config': self.config,
+                'db': connection
+            }
 
-                            async with self.pool.acquire() as connection:
-                                context = {
-                                    'client': self,
-                                    'config': self.config,
-                                    'db': connection
-                                }
+            await store_messages(
+                context,
+                str(message.guild.id),
+                message.guild.name,
+                str(message.author.id),
+                message.author.name,
+                message.content
+            )
+
+            if message.author.id != self.user.id:
+                prefix = self.config['prefix']
+                commands = cmds.command.commands
+                for n in range(len(prefix)):
+                    if message.content.startswith(prefix[n]):
+                        for i in range(len(commands)):
+                            if message.content[1:].startswith(
+                                    commands[i]['trigger']
+                            ):
+                                c = cmds.command.command_handler(
+                                    commands[i]['module'],
+                                    commands[i]['handler']
+                                )
 
                                 perms = await cmds.command.get_permissions(
                                     context,
@@ -84,6 +95,28 @@ async def connect_db(config):
     )
 
     return await asyncpg.create_pool(db_host)
+
+
+async def store_messages(context, sid, server, uid, user, content):
+    statement = '''
+    insert into messages (
+        guildid,
+        guildname,
+        userid,
+        username,
+        content
+    )
+    values ($1, $2, $3, $4, $5)
+    '''
+
+    return await context['db'].execute(
+        statement,
+        sid,
+        server,
+        uid,
+        user,
+        content
+    )
 
 
 if __name__ == "__main__":
