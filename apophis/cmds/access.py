@@ -3,7 +3,7 @@ from cmds.command import Command
 
 
 class AccessCommand(Command):
-    async def handle(self, context, message) -> str:
+    async def handle(self, context, message):
         content = list(message.content[8:].split())
 
         if len(content) >= 1:

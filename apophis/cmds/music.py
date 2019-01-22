@@ -1,8 +1,14 @@
-import youtube_dl
+from asyncio import Queue
+from asyncio import QueueEmpty
 from cmds.command import Command
 from typing import Optional
 from discord import FFmpegPCMAudio
+import asyncio
 import os
+import youtube_dl
+
+
+song_queue: Queue = Queue(256)
 
 
 async def song_exists(context, link: str) -> bool:
@@ -15,7 +21,7 @@ async def song_exists(context, link: str) -> bool:
         return True
 
 
-async def get_song(context, song_id: int) -> Optional[any]:
+async def get_song(context, song_id: int):
     statement = 'select id,title from songs where id = $1'
     song = await context['db'].fetchrow(statement, song_id)
 
@@ -26,25 +32,66 @@ async def play_song(context, message, song_id: int):
     song = await get_song(context, song_id)
 
     if song is None:
-        return await message.channel.send(
-            'The specified song could not be found.'
-        )
+        return None
     else:
-        if len(context['client'].voice_clients) == 1:
-            voice = context['client'].voice_clients[0]
-            if voice.is_playing():
-                voice.stop()
-        else:
+        await stop_playing(context)
+
+        if len(context['client'].voice_clients) == 0:
             voice = await message.author.voice.channel.connect()
+        else:
+            voice = context['client'].voice_clients[0]
 
         path = os.environ.get(
             'MUSIC_DATA_DIR',
             context['config'].get('music_data_dir', 'run/music')
         )
-        voice.play(FFmpegPCMAudio('{}/{}.mp3'.format(path, song['id'])))
-        return await message.channel.send(
-            'Now playing: {0}'.format(song['title'])
-        )
+        voice.play(FFmpegPCMAudio('{}/{}.mp3'.format(path, song['id'])),
+                   after=lambda e: handle_after_song(context, message))
+
+        return song
+
+
+# By the time this handler is invoked,
+# the database connection that was acquired has already been released.
+# We need to acquire a new one.
+def handle_after_song(context, message):
+    c = after_song(context, message)
+    f = asyncio.run_coroutine_threadsafe(c, context['client'].loop)
+    try:
+        f.result()
+    except Exception as e:
+        print(e)
+        pass
+
+
+async def after_song(old_context, message):
+    async with old_context['client'].pool.acquire() as connection:
+        new_context = {
+            'client': old_context['client'],
+            'config': old_context['config'],
+            'db': connection
+        }
+
+        await stop_playing(new_context)
+        next_song_id = await get_next_song()
+        if next_song_id is None:
+            pass
+        else:
+            await play_song(new_context, message, next_song_id)
+
+
+async def stop_playing(context) -> None:
+    if len(context['client'].voice_clients) == 1:
+        voice = context['client'].voice_clients[0]
+        if voice.is_playing():
+            voice.stop()
+
+
+async def get_next_song() -> Optional[int]:
+    try:
+        return song_queue.get_nowait()
+    except QueueEmpty:
+        return None
 
 
 async def fetch_song(context, message, link: str):
@@ -123,42 +170,83 @@ async def list_all_songs(context):
     return songs
 
 
+async def queue_song(context, song_id: int) -> None:
+    song = await get_song(context, song_id)
+
+    if song is None:
+        return None
+    else:
+        await song_queue.put(song['id'])
+        return song
+
+
 class MusicCommand(Command):
     async def handle(self, context, message):
-        usage = "usage: #music playlist <add/del/play>"
+        usage = 'usage: #music ' \
+                '[play|fetch|queue|next|list|stop|' \
+                'quit|join|search|lucky|qlucky]'
         content = list(message.content[7:].split())
 
         if len(content) >= 1:
             if content[0].startswith('play'):
-                await play_song(context, message, int(content[1]))
-            elif content[0].startswith('fetch'):
-                if content[1].startswith('https://www.youtube.com/watch?v='):
-                    await fetch_song(context, message, content[1])
+                song = await play_song(context, message, int(content[1]))
+                if song is None:
+                    return await message.channel.send(
+                        'That song does not exist.'
+                    )
                 else:
                     return await message.channel.send(
-                        "must contain valid youtube url"
+                        'Now playing: {}'.format(song['title'])
                     )
+            elif content[0].startswith('fetch'):
+                if content[1].startswith('https://www.youtube.com/watch?v='):
+                    return await fetch_song(context, message, content[1])
+                else:
+                    return await message.channel.send(
+                        'You must specify a valid YouTube video link.'
+                    )
+            elif content[0].startswith('queue'):
+                song = await queue_song(context, int(content[1]))
+                if song is None:
+                    return await message.channel.send(
+                        'The specified song does not exist.'
+                    )
+                else:
+                    return await message.add_reaction('\u2705')
+            elif content[0].startswith('next'):
+                await stop_playing(context)
+                next_song_id = await get_next_song()
+                if next_song_id is None:
+                    return message.channel.send('No more songs in queue.')
+                else:
+                    return await play_song(context, message, next_song_id)
             elif content[0].startswith('list'):
-                if content[1].startswith('all'):
-                    songs = await list_all_songs(context)
-                    results = '\n'.join([
-                        '(' + str(song['id']) + ') - ' +
-                        str(song['title']) for song in songs
-                    ])
+                songs = await list_all_songs(context)
+                results = '\n'.join([
+                    '(' + str(song['id']) + ') - ' +
+                    str(song['title']) for song in songs
+                ])
 
-                    await message.channel.send(
-                        '''```{0}```'''.format(
-                            results
-                        )
+                return await message.channel.send(
+                    '''```{0}```'''.format(
+                        results
                     )
+                )
             elif content[0].startswith('stop'):
                 for n in range(len(context['client'].voice_clients)):
                     context['client'].voice_clients[n].stop()
+                return await message.add_reaction('\u2705')
             elif content[0].startswith('quit'):
                 for n in range(len(context['client'].voice_clients)):
                     await context['client'].voice_clients[n].disconnect()
+                return await message.add_reaction('\u2705')
             elif content[0].startswith('join'):
-                await message.author.voice.channel.connect()
+                if len(context['client'].voice_clients) > 0:
+                    return await message.channel.send(
+                        'I am already in a voice channel.'
+                    )
+                else:
+                    return await message.author.voice.channel.connect()
             elif content[0].startswith('search'):
                 songs = await search_songs(context, message.content[14:])
                 if len(songs) > 0:
@@ -167,23 +255,36 @@ class MusicCommand(Command):
                         str(song['title']) for song in songs
                     ])
 
-                    await message.channel.send(
+                    return await message.channel.send(
                         '''```{0}```'''.format(
                             results
                         )
                     )
                 else:
-                    await message.channel.send(
+                    return await message.channel.send(
                         'No songs were found.'
                     )
             elif content[0].startswith('lucky'):
                 songs = await search_songs(context, message.content[13:])
                 if len(songs) > 0:
-                    await play_song(context, message, songs[0]['id'])
+                    return await play_song(context, message, songs[0]['id'])
                 else:
-                    await message.channel.send(
+                    return await message.channel.send(
                         'No songs were found.'
                     )
+            elif content[0].startswith('qlucky'):
+                songs = await search_songs(context, message.content[14:])
+                if len(songs) > 0:
+                    print(songs[0]['id'])
+                    song = await queue_song(context, songs[0]['id'])
+                    if song is None:
+                        return await message.channel.send(
+                            'The specified song does not exist.'
+                        )
+                    else:
+                        return await message.add_reaction('\u2705')
+                else:
+                    return await message.channel.send('No songs were found.')
 
             else:
                 return await message.channel.send(usage)
