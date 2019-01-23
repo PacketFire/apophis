@@ -35,9 +35,10 @@ async def play_song(context, message, song_id: int):
     if song is None:
         return None
     else:
-        # TODO: Move stop playing and voice connect logic out from this function.
-        # Preconditions should be that the bot is already connected to a function
-        # and that it is not already playing a song.
+        # TODO: Move stop playing and voice connect logic out from
+        # this function. Preconditions should be that the bot is
+        # already connected to a function and that it is not already
+        # playing a song.
         stop_playing(context)
 
         if len(context['client'].voice_clients) == 0:
