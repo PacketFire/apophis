@@ -8,10 +8,10 @@ class DefineCommand(Command):
 
         try:
             index = int(content[-1])
-            term = ' '.join(content[:-1])
+            term = str.join(' ', content[:-1])
         except ValueError:
             index = 1
-            term = ' '.join(content)
+            term = str.join(' ', content)
 
         r = requests.get(
             f"http://api.urbandictionary.com/v0/define?term={term}"
