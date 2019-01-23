@@ -9,6 +9,7 @@ import youtube_dl
 
 
 song_queue: Queue = Queue(256)
+stop_queue: Queue = Queue(1)
 
 
 async def song_exists(context, link: str) -> bool:
@@ -34,7 +35,11 @@ async def play_song(context, message, song_id: int):
     if song is None:
         return None
     else:
-        await stop_playing(context)
+        # TODO: Move stop playing and voice connect logic out from
+        # this function. Preconditions should be that the bot is
+        # already connected to a function and that it is not already
+        # playing a song.
+        stop_playing(context)
 
         if len(context['client'].voice_clients) == 0:
             voice = await message.author.voice.channel.connect()
@@ -65,22 +70,24 @@ def handle_after_song(context, message):
 
 
 async def after_song(old_context, message):
-    async with old_context['client'].pool.acquire() as connection:
-        new_context = {
-            'client': old_context['client'],
-            'config': old_context['config'],
-            'db': connection
-        }
+    try:
+        stop_queue.get_nowait()
+    except QueueEmpty:
+        async with old_context['client'].pool.acquire() as connection:
+            new_context = {
+                'client': old_context['client'],
+                'config': old_context['config'],
+                'db': connection
+            }
 
-        await stop_playing(new_context)
-        next_song_id = get_next_song()
-        if next_song_id is None:
-            pass
-        else:
-            await play_song(new_context, message, next_song_id)
+            next_song_id = get_next_song()
+            if next_song_id is None:
+                pass
+            else:
+                await play_song(new_context, message, next_song_id)
 
 
-async def stop_playing(context) -> None:
+def stop_playing(context) -> None:
     if len(context['client'].voice_clients) == 1:
         voice = context['client'].voice_clients[0]
         if voice.is_playing():
@@ -213,11 +220,12 @@ class MusicCommand(Command):
                 else:
                     return await message.add_reaction('\u2705')
             elif content[0].startswith('next'):
-                await stop_playing(context)
+                stop_playing(context)
                 next_song_id = get_next_song()
                 if next_song_id is None:
                     return message.channel.send('No more songs in queue.')
                 else:
+                    await stop_queue.put(None)
                     return await play_song(context, message, next_song_id)
             elif content[0].startswith('list'):
                 songs = await list_all_songs(context)
@@ -266,6 +274,7 @@ class MusicCommand(Command):
             elif content[0].startswith('lucky'):
                 songs = await search_songs(context, message.content[13:])
                 if len(songs) > 0:
+                    await stop_queue.put(None)
                     return await play_song(context, message, songs[0]['id'])
                 else:
                     return await message.channel.send(
