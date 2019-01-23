@@ -3,7 +3,7 @@ import asyncpg
 import discord
 import cmds.command
 from core.readers import fetch_config
-import os, sys
+import os
 
 
 class BotClient(discord.Client):
