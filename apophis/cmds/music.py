@@ -228,7 +228,9 @@ class MusicCommand(Command):
                 await stop_playing(context)
                 next_song_id = get_next_song()
                 if next_song_id is None:
-                    return await message.channel.send('No more songs in queue.')
+                    return await message.channel.send(
+                        'No more songs in queue.'
+                    )
                 else:
                     return await play_song(context, message, next_song_id)
             elif content[0].startswith('list'):
@@ -294,7 +296,9 @@ class MusicCommand(Command):
                             'The specified song does not exist.'
                         )
                     else:
-                        return await message.add_reaction(REACTION_WHITE_CHECKMARK)
+                        return await message.add_reaction(
+                            REACTION_WHITE_CHECKMARK
+                        )
                 else:
                     return await message.channel.send('No songs were found.')
 
