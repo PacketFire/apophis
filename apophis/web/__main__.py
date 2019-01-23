@@ -1,13 +1,13 @@
-from flask import Flask
+from aiohttp import web
 
 
-app = Flask(__name__)
+async def handle(request):
+    return web.Response(text="Apophis Web")
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    return 'test'
+app = web.Application()
+app.add_routes([web.get('/', handle)])
 
 
 if __name__ == "__main__":
-    app.run(port=8080)
+    web.run_app(app)
