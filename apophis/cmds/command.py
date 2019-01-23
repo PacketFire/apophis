@@ -54,5 +54,11 @@ commands = [
         'module': 'cmds.access',
         'handler': 'AccessCommand',
         'permissions': 2
+    },
+    {
+        'trigger': 'quit',
+        'module': 'cmds.quit',
+        'handler': 'QuitCommand',
+        'permissions': 2
     }
 ]

@@ -120,5 +120,9 @@ async def store_messages(context, sid, server, uid, user, content):
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(run())
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(run())
+    except KeyboardInterrupt:
+        print('Exiting bot, caught keyboard interrupt.')
+        os._exit(0)
