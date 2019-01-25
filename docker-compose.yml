@@ -10,11 +10,21 @@ services:
       - "15432:5432"
     volumes:
       - ./run/pg:/var/lib/postgresql/data
-  apophis:
-    image: packetfire/apophis
-    build:
-      context: ./
+  flyway-migrate:
+    image: boxfuse/flyway:5.2.4-alpine
+    command: -url=jdbc:postgresql://postgres:5432/apophis -user=postgres -password=postgres migrate
     volumes:
-      - ./run/music:/var/lib/apophis/music
-    environment:
-      MUSIC_DATA_DIR: /var/lib/apophis/music
+      - ./migrations:/flyway/sql
+    links:
+      - postgres
+    depends_on:
+      - postgres
+  flyway-clean:
+    image: boxfuse/flyway:5.2.4-alpine
+    command: -url=jdbc:postgresql://postgres:5432/apophis -user=postgres -password=postgres clean
+    volumes:
+      - ./migrations:/flyway/sql
+    links:
+      - postgres
+    depends_on:
+      - postgres
