@@ -1,9 +1,14 @@
 import asyncio
 import asyncpg
+import calendar
 import discord
+import os
+import time
+
 import cmds.command
 from core.readers import fetch_config
-import os
+
+start_time = calendar.timegm(time.gmtime())
 
 
 class BotClient(discord.Client):
@@ -28,7 +33,8 @@ class BotClient(discord.Client):
             context = {
                 'client': self,
                 'config': self.config,
-                'db': connection
+                'db': connection,
+                'start_time': start_time
             }
 
             await store_messages(
