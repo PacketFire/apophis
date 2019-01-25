@@ -56,6 +56,12 @@ commands = [
         'permissions': 2
     },
     {
+        'trigger': 'uptime',
+        'module': 'cmds.uptime',
+        'handler': 'UptimeCommand',
+        'permissions': 0
+    },
+    {
         'trigger': 'quit',
         'module': 'cmds.quit',
         'handler': 'QuitCommand',
