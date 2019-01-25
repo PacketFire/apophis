@@ -30,6 +30,7 @@ class DefineCommand(Command):
             reply = f"cannot find definition on index {index}"
         else:
             definition = definitions[index-1].get("definition")
+            definition = definition.replace('[', "**").replace(']', "**")
             reply = f"{term} [{index}/{total}]: {definition}"
 
         return message.channel.send(reply)
