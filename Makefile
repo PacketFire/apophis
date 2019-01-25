@@ -1,7 +1,7 @@
 .PHONY: pip-compile pip-install lint type
 
 setup:
-	$(shell which python3.7) -m venv venv; pip install pip-tools
+	$(shell which python3) -m venv venv; pip install pip-tools
 
 pip-compile:
 	source venv/bin/activate; pip-compile requirements.in
@@ -11,7 +11,7 @@ pip-install:
 
 lint:
 	source venv/bin/activate; flake8 apophis/
-	
+
 type:
 	source venv/bin/activate; mypy --ignore-missing-imports apophis/
 
