@@ -7,4 +7,4 @@ def fetch_config():
             config = json.load(fh)
         return config
     except IOError:
-        return 'config does not exist'
+        return {'error': 'config does not exist'}

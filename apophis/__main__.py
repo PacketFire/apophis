@@ -41,48 +41,44 @@ class BotClient(discord.Client):
             )
 
             if message.author.id != self.user.id:
-                prefix = self.config['prefix']
+                prefix = self.config.get('prefix', '!')
                 commands = cmds.command.commands
-                for n in range(len(prefix)):
-                    if message.content.startswith(prefix[n]):
-                        for i in range(len(commands)):
-                            if message.content[1:].startswith(
-                                    commands[i]['trigger']
-                            ):
-                                c = cmds.command.command_handler(
-                                    commands[i]['module'],
-                                    commands[i]['handler']
-                                )
 
-                                perms = await cmds.command.get_permissions(
-                                    context,
-                                    message.author.id
-                                )
+                for p in prefix:
+                    if not message.content.startswith(p):
+                        continue
 
-                                if perms >= commands[i]['permissions']:
-                                    await c.handle(
-                                        commands[i],
-                                        context,
-                                        message,
-                                    )
-                                else:
-                                    return await message.channel.send(
-                                        'Unauthorized.'
-                                    )
+                    for cm in commands:
+                        if not message.content[1:].startswith(cm['trigger']):
+                            continue
+
+                        c = cmds.command.command_handler(cm['module'],
+                                                         cm['handler'])
+
+                        perms = await cmds.command.get_permissions(
+                            context,
+                            message.author.id
+                        )
+
+                        if perms < cm['permissions']:
+                            return await message.channel.send('Unauthorized')
+
+                        await c.handle(cm, context, message)
 
 
 async def run():
     config = fetch_config()
-    bot_token = os.environ.get('BOT_TOKEN', config['bot_token'])
+    bot_token = os.environ.get('BOT_TOKEN', config.get('bot_token'))
 
     if bot_token is None:
         print('You must specify a bot token in order to start the bot.')
-    else:
-        pool = await connect_db(config)
-        print('Connected to postgres')
+        return
 
-        client = BotClient(config=config, pool=pool)
-        await client.start(bot_token)
+    pool = await connect_db(config)
+    print('Connected to postgres')
+
+    client = BotClient(config=config, pool=pool)
+    await client.start(bot_token)
 
 
 async def connect_db(config):
