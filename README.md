@@ -1,6 +1,8 @@
 # apophis
 A Discord bot
 
+[![Build Status](https://travis-ci.com/PacketFire/apophis.svg?branch=master)](https://travis-ci.com/PacketFire/apophis)
+
 ## Dependencies
 * Docker along with `docker-compose`
 * Python 3.6+
