@@ -47,7 +47,7 @@ Once that is out of the way, you need to connect to Postgres container, and add 
 ```shell
 $ docker exec -it <your_containers_name> psql -U postgres
 postgres=# \c apophis
-postgres=# INSERT INTO permissions (username, level) VALUES
+postgres=# INSERT INTO permissions (username, level) VALUES (<your_discord_id>, 2);
 ```
 
 You can find your container name under column named `NAMES` after running `docker ps`.
