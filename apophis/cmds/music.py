@@ -3,6 +3,7 @@ from asyncio import QueueEmpty
 from cmds.command import Command
 from typing import Optional
 from discord import FFmpegPCMAudio
+from discord import Game
 import asyncio
 import os
 import youtube_dl
@@ -56,6 +57,9 @@ async def play_song(context, message, song_id: int):
         voice.play(FFmpegPCMAudio('{}/{}.mp3'.format(path, song['id'])),
                    after=lambda e: handle_after_song(context, message))
 
+        activity = Game(song['title'])
+        await context['client'].change_presence(activity=activity)
+
         return song
 
 
@@ -85,7 +89,7 @@ async def after_song(old_context, message):
 
             next_song_id = get_next_song()
             if next_song_id is None:
-                pass
+                await new_context['client'].change_presence(activity=None)
             else:
                 await play_song(new_context, message, next_song_id)
 
@@ -248,10 +252,14 @@ class MusicCommand(Command):
             elif content[0].startswith('stop'):
                 for n in range(len(context['client'].voice_clients)):
                     context['client'].voice_clients[n].stop()
+                await context['client'].change_presence(activity=None)
+
                 return await message.add_reaction(REACTION_WHITE_CHECKMARK)
             elif content[0].startswith('quit'):
                 for n in range(len(context['client'].voice_clients)):
                     await context['client'].voice_clients[n].disconnect()
+                await context['client'].change_presence(activity=None)
+
                 return await message.add_reaction(REACTION_WHITE_CHECKMARK)
             elif content[0].startswith('join'):
                 if len(context['client'].voice_clients) > 0:
