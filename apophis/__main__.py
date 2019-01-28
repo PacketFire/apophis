@@ -7,6 +7,7 @@ import time
 
 import cmds.command
 from core.readers import fetch_config
+from core.http import http_handler
 
 start_time = calendar.timegm(time.gmtime())
 
@@ -121,10 +122,16 @@ async def store_messages(context, sid, server, uid, user, content):
     )
 
 
+async def run_coroutines():
+    colist = [run(), http_handler()]
+    res = await asyncio.gather(*colist, return_exceptions=True)
+    return res
+
+
 if __name__ == "__main__":
     try:
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(run())
+        loop.run_until_complete(run_coroutines())
     except KeyboardInterrupt:
         print('Exiting bot, caught keyboard interrupt.')
         os._exit(0)
