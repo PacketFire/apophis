@@ -22,3 +22,7 @@ class WeatherCommand(Command):
                     weather.get_wind()['speed']
                 )
             )
+        else:
+            return await message.channel.send(
+                'usage: !weather <zipcode>'
+            )
