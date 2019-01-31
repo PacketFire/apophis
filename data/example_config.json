@@ -1,0 +1,8 @@
+{
+    "prefix": [
+        "!"
+    ],
+    "bot_token": "your discord bot token",
+    "salt": "your hashids salt",
+    "weather_token": "your openweather api token"
+}

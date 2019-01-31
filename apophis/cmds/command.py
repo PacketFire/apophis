@@ -66,5 +66,11 @@ commands = [
         'module': 'cmds.quit',
         'handler': 'QuitCommand',
         'permissions': 2
+    },
+    {
+        'trigger': 'weather',
+        'module': 'cmds.weather',
+        'handler': 'WeatherCommand',
+        'permissions': 0
     }
 ]
