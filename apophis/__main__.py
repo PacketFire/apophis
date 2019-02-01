@@ -9,10 +9,10 @@ import cmds.command
 from core.readers import fetch_config
 from core.http import http_handler
 
-
+logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename='data/apophis.log',
-    format='%(asctime)s %(message)s',
+    format='[%(asctime)s %(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s',
     filemode='w',
     level=logging.DEBUG
 )
@@ -28,13 +28,13 @@ class BotClient(discord.Client):
         self.pool = kwargs.pop('pool')
 
     async def on_ready(self):
-        logging.debug(
+        logger.debug(
             'Logged in as ID: %s, username: %s',
             self.user.id, self.user.name
         )
 
     async def on_message(self, message):
-        logging.debug(
+        logger.debug(
             "#%s | <%s> %s",
             message.channel,
             message.author.name,
@@ -89,13 +89,13 @@ async def run():
     bot_token = os.environ.get('BOT_TOKEN', config.get('bot_token'))
 
     if bot_token is None:
-        logging.error(
+        logger.error(
             'You must specify a bot token in order to start the bot.'
         )
         return
 
     pool = await connect_db(config)
-    logging.info('Connected to postgres!')
+    logger.info('Connected to postgres!')
 
     client = BotClient(config=config, pool=pool)
     await client.start(bot_token)
@@ -146,5 +146,5 @@ if __name__ == "__main__":
         loop = asyncio.get_event_loop()
         loop.run_until_complete(run_coroutines())
     except KeyboardInterrupt:
-        logging.debug('Exiting bot, caught keyboard interrupt.')
+        logger.debug('Exiting bot, caught keyboard interrupt.')
         os._exit(0)
