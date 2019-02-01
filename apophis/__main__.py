@@ -29,16 +29,17 @@ class BotClient(discord.Client):
 
     async def on_ready(self):
         logging.debug(
-            'Logged in as ID: {0}, username: {1}'
-            .format(self.user.id, self.user.name)
+            'Logged in as ID: %s, username: %s',
+            self.user.id, self.user.name
         )
 
     async def on_message(self, message):
-        logging.debug("#{0} | <{1}> {2}".format(
+        logging.debug(
+            "#%s | <%s> %s",
             message.channel,
             message.author.name,
             message.content
-        ))
+        )
 
         async with self.pool.acquire() as connection:
             context = {
