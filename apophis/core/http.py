@@ -8,6 +8,13 @@ async def index(request):
 async def http_handler():
     app = web.Application()
     app.add_routes([web.get('/', index)])
+    
+    runner = web.AppRunner(app)
+    await runner.setup()
 
-    print("Running httpd...")
-    web.run_app(app, host="127.0.0.1", port="5000")
+    site = web.TCPSite(runner, '127.0.0.1', 5002)
+    await site.start()
+
+    print('Serving on http://127.0.0.1:5002/')
+
+    # TODO: Handle finish signal here
