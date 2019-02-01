@@ -4,10 +4,20 @@ import calendar
 import discord
 import os
 import time
-
+import logging
 import cmds.command
 from core.readers import fetch_config
 from core.http import http_handler
+
+
+DEBUG = False
+
+logging.basicConfig(
+    filename='data/apophis.log',
+    format='%(asctime)s %(message)s',
+    filemode='w',
+    level=logging.DEBUG
+)
 
 start_time = calendar.timegm(time.gmtime())
 
@@ -20,15 +30,20 @@ class BotClient(discord.Client):
         self.pool = kwargs.pop('pool')
 
     async def on_ready(self):
-        print('Logged in as ID: {}, username: {}'.format(self.user.id,
-                                                         self.user.name))
+        if DEBUG is True:
+            logging.debug(
+                'Logged in as ID: {0}, username: {1}'
+                .format(self.user.id, self.user.name)
+            )
+
 
     async def on_message(self, message):
-        print("#{0} | <{1}> {2}".format(
-            message.channel,
-            message.author.name,
-            message.content
-        ))
+        if DEBUG is True:
+            print("#{0} | <{1}> {2}".format(
+                message.channel,
+                message.author.name,
+                message.content
+            ))
 
         async with self.pool.acquire() as connection:
             context = {
@@ -78,11 +93,13 @@ async def run():
     bot_token = os.environ.get('BOT_TOKEN', config.get('bot_token'))
 
     if bot_token is None:
-        print('You must specify a bot token in order to start the bot.')
+        logging.warning(
+            'You must specify a bot token in order to start the bot.'
+        )
         return
 
     pool = await connect_db(config)
-    print('Connected to postgres')
+    logging.info('Connected to postgres!')
 
     client = BotClient(config=config, pool=pool)
     await client.start(bot_token)
@@ -133,5 +150,6 @@ if __name__ == "__main__":
         loop = asyncio.get_event_loop()
         loop.run_until_complete(run_coroutines())
     except KeyboardInterrupt:
-        print('Exiting bot, caught keyboard interrupt.')
+        if DEBUG is True:
+            logging.debug('Exiting bot, caught keyboard interrupt.')
         os._exit(0)
