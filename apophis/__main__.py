@@ -12,7 +12,8 @@ from core.http import http_handler
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename='data/apophis.log',
-    format='[%(asctime)s %(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s',
+    format='[%(asctime)s %(filename)s'
+    ':%(lineno)s - %(funcName)20s() ] %(message)s',
     filemode='w',
     level=logging.DEBUG
 )
