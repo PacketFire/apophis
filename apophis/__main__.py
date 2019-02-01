@@ -36,7 +36,6 @@ class BotClient(discord.Client):
                 .format(self.user.id, self.user.name)
             )
 
-
     async def on_message(self, message):
         if DEBUG is True:
             print("#{0} | <{1}> {2}".format(
