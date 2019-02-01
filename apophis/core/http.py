@@ -8,7 +8,7 @@ async def index(request):
 async def http_handler():
     app = web.Application()
     app.add_routes([web.get('/', index)])
-    
+
     runner = web.AppRunner(app)
     await runner.setup()
 
