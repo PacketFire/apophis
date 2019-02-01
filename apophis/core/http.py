@@ -1,4 +1,5 @@
 from aiohttp import web
+import logging
 
 
 async def index(request):
@@ -15,6 +16,6 @@ async def http_handler():
     site = web.TCPSite(runner, '127.0.0.1', 5002)
     await site.start()
 
-    print('Serving on http://127.0.0.1:5002/')
+    logging.info('Serving on http://127.0.0.1:5002/')
 
     # TODO: Handle finish signal here
