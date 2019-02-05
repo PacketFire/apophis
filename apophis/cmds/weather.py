@@ -34,7 +34,6 @@ class WeatherCommand(Command):
                 place = message.content[9:]
                 observe = owm.weather_at_place(place)
 
-
             weather = observe.get_weather()
             return await message.channel.send(
                 'The current weather for {0}: '
