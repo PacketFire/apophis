@@ -16,8 +16,22 @@ class WeatherCommand(Command):
                     country = 'US'
 
                 observe = owm.weather_at_zip_code(place, country)
+
             elif content[0] == 'place':
                 place = message.content[15:]
+                observe = owm.weather_at_place(place)
+
+            elif len(content[0]) == 5 and content[0].isdigit():
+                place = content[0]
+                if len(content) == 2:
+                    country = content[1]
+                else:
+                    country = 'US'
+
+                observe = owm.weather_at_zip_code(place, country)
+
+            elif not content[0].isdigit():
+                place = message.content[9:]
                 observe = owm.weather_at_place(place)
 
             weather = observe.get_weather()
