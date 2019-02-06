@@ -168,7 +168,7 @@ if __name__ == "__main__":
         loop = asyncio.get_event_loop()
         loop.run_until_complete(run_coroutines())
     except KeyboardInterrupt:
-        logger.debug('Exiting bot, caught keyboard interrupt.')
+        logger.debug('Exiting bot, caught a keyboard interrupt.')
         os._exit(0)
     except Exception as e:
         logger.error(e)
