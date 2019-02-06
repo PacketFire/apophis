@@ -6,7 +6,13 @@ class WeatherCommand(Command):
     async def handle(self, context, message) -> str:
         content = message.content[8:].split()
 
-        if content[0] is not None:
+        if not content:
+            return await message.channel.send(
+                'usage: !weather <zip/place>'
+                '<zipcode> <country> or place: <City,State,Country>'
+            )
+
+        else:
             owm = pyowm.OWM(context['config']['weather_token'])
             if content[0] == 'zip':
                 place = content[1]
@@ -45,11 +51,4 @@ class WeatherCommand(Command):
                     weather.get_humidity(),
                     weather.get_wind()['speed']
                 )
-            )
-        else:
-            return await message.channel.send(
-                '''
-                usage: !weather <zip/place>
-                zip: <code> <country> place: <City,State,Country>
-                '''
             )
