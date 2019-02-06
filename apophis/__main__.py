@@ -11,11 +11,12 @@ from core.http import http_handler
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    filename='data/apophis.log',
     format='[%(asctime)s %(filename)s'
     ':%(lineno)s - %(funcName)20s() ] %(message)s',
-    filemode='w',
-    level=logging.DEBUG
+    level=logging.DEBUG,
+    handlers=[
+        logging.StreamHandler()
+    ]
 )
 
 start_time = calendar.timegm(time.gmtime())
@@ -60,7 +61,7 @@ class BotClient(discord.Client):
             )
 
             if message.author.id != self.user.id:
-                prefix = self.config.get('prefix', '!')
+                prefix = self.config.get('prefix', ['!'])
                 commands = cmds.command.commands
 
                 for p in prefix:
@@ -103,15 +104,31 @@ async def run():
 
 
 async def connect_db(config):
-    db_host = os.environ.get(
-        'DB_HOST',
-        config.get(
-            'db_host',
-            'postgresql://postgres:postgres@localhost:15432/apophis'
-        )
+    address = os.environ.get(
+        'POSTGRES_ADDRESS',
+        'localhost:15432'
+    )
+    username = os.environ.get(
+        'POSTGRES_USERNAME',
+        'postgres'
+    )
+    password = os.environ.get(
+        'POSTGRES_PASSWORD',
+        'postgres'
+    )
+    database = os.environ.get(
+        'POSTGRES_DATABASE',
+        'apophis'
     )
 
-    return await asyncpg.create_pool(db_host)
+    dsn = 'postgresql://{};{}@{}/{}'.format(
+        username,
+        password,
+        address,
+        database
+    )
+
+    return await asyncpg.create_pool(dsn)
 
 
 async def store_messages(context, sid, server, uid, user, content):
