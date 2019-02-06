@@ -41,4 +41,5 @@ jobs:
         - docker
     - stage: deploy
       script:
-        - "curl -k -H \"Authorization: Bearer $KUBERNETES_TOKEN\" $API_SERVER_HOST/api"
+        - echo hello
+        # - "curl -k -H \"Authorization: Bearer $KUBERNETES_TOKEN\" $API_SERVER_HOST/api"
