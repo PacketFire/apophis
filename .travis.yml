@@ -33,7 +33,7 @@ jobs:
       sudo: true
     - stage: publish
       script:
-        - echo $SERVICE_ACCOUNT_JSON > keyfile.json
+        - echo $SERVICE_ACCOUNT | base64 -D > keyfile.json
         - cat keyfile.json | docker login -u _json_key --password-stdin https://gcr.io
         - echo publishing image
       services:
