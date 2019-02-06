@@ -1,7 +1,7 @@
 # apophis
 A Discord bot
 
-[![Build Status](https://travis-ci.com/PacketFire/apophis.svg?branch=master)](https://travis-ci.com/PacketFire/apophis)
+[![Build Status](https://travis-ci.org/PacketFire/apophis.svg?branch=master)](https://travis-ci.org/PacketFire/apophis)
 
 ## Dependencies
 * Docker along with `docker-compose`
