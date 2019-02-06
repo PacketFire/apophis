@@ -9,12 +9,21 @@ matrix:
       dist: xenial
       sudo: true
 
-# commands to install dependencies
-install:
-  - pip install -r requirements.txt
-  - pip install -r requirements-e.txt
+stages:
+  - test
+  - name: deploy
+    if: branch = master
 
-# command to run tests
-script:
-  - flake8 .
-  - mypy --ignore-missing-imports .
+jobs:
+  include:
+    - stage: test
+      install:
+        - pip install -r requirements.txt
+        - pip install -r requirements-e.txt
+      script:
+        - flake8 .
+        - mypy --ignore-missing-imports .
+    - stage: deploy
+      script:
+        - echo deploy
+      python: 3.7
