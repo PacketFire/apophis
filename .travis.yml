@@ -1,7 +1,7 @@
-language: python
-
 stages:
   - test
+  - name: publish
+    if: branch = master
   - name: deploy
     if: branch = master
 
@@ -15,6 +15,7 @@ jobs:
       script:
         - flake8 .
         - mypy --ignore-missing-imports .
+      language: python
       python: 3.7
       dist: xenial
       sudo: true
@@ -26,9 +27,13 @@ jobs:
       script:
         - flake8 .
         - mypy --ignore-missing-imports .
+      language: python
       python: 3.6
       dist: xenial
       sudo: true
+    - stage: publish
+      script:
+        - echo publishing image
     - stage: deploy
       script:
         - echo deploy
