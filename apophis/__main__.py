@@ -97,8 +97,6 @@ async def run():
         )
         return
 
-    print('connecting db')
-
     pool = await connect_db(config)
     logger.info('Connected to postgres!')
 
