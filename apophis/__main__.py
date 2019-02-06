@@ -129,7 +129,11 @@ async def connect_db(config):
         database
     )
 
-    return await asyncpg.create_pool(dsn)
+    try:
+        return await asyncpg.create_pool(dsn)
+    except Exception as e:
+        logger.error(e)
+        raise e
 
 
 async def store_messages(context, sid, server, uid, user, content):
@@ -166,3 +170,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logger.debug('Exiting bot, caught keyboard interrupt.')
         os._exit(0)
+    except Exception as e:
+        logger.error(e)
