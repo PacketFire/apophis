@@ -37,9 +37,8 @@ jobs:
         - cat keyfile.json | docker login -u _json_key --password-stdin https://gcr.io
         - docker build -t gcr.io/$PROJECT_ID/apophis:latest .
         - docker push gcr.io/$PROJECT_ID/apophis:latest
-        - echo publishing image
       services:
         - docker
     - stage: deploy
       script:
-        - echo deploy
+        - "curl -H \"Authorization: Bearer $KUBERNETES_TOKEN\" $API_SERVER_HOST/api"
