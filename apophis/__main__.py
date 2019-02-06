@@ -9,11 +9,12 @@ import cmds.command
 from core.readers import fetch_config
 from core.http import http_handler
 
+log_level = os.environ.get('LOGLEVEL', 'DEBUG')
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format='[%(asctime)s %(filename)s'
     ':%(lineno)s - %(funcName)20s() ] %(message)s',
-    level=logging.DEBUG,
+    level=log_level,
     handlers=[
         logging.StreamHandler()
     ]
@@ -96,6 +97,8 @@ async def run():
         )
         return
 
+    print('connecting db')
+
     pool = await connect_db(config)
     logger.info('Connected to postgres!')
 
@@ -121,7 +124,7 @@ async def connect_db(config):
         'apophis'
     )
 
-    dsn = 'postgresql://{};{}@{}/{}'.format(
+    dsn = 'postgresql://{}:{}@{}/{}'.format(
         username,
         password,
         address,
@@ -155,8 +158,7 @@ async def store_messages(context, sid, server, uid, user, content):
 
 async def run_coroutines():
     colist = [run(), http_handler()]
-    res = await asyncio.gather(*colist, return_exceptions=True)
-    return res
+    return await asyncio.gather(*colist, return_exceptions=True)
 
 
 if __name__ == "__main__":
