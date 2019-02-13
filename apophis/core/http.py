@@ -6,9 +6,16 @@ async def index(request):
     return web.Response(text="Apophis Web")
 
 
+async def login(request):
+    data = await request.json()
+
+    return web.json_response(data)
+
+
 async def http_handler():
     app = web.Application()
     app.add_routes([web.get('/', index)])
+    app.add_routes([web.post('/login', login)])
 
     runner = web.AppRunner(app)
     await runner.setup()
