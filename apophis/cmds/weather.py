@@ -1,4 +1,5 @@
 from cmds.command import Command
+import os
 import pyowm
 
 
@@ -13,7 +14,12 @@ class WeatherCommand(Command):
             )
 
         else:
-            owm = pyowm.OWM(context['config']['weather_token'])
+            owm_token = os.environ.get(
+                'OWM_TOKEN',
+                context['config']['weather_token']
+            )
+
+            owm = pyowm.OWM(owm_token)
             if content[0] == 'zip':
                 place = content[1]
                 if len(content) == 3:
