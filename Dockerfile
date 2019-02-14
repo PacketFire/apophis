@@ -1,7 +1,7 @@
-FROM python:3.7.2-stretch
+FROM python:3.7.2-alpine3.9
 
 RUN apt-get update && \
-    apt-get install -y ffmpeg opus-tools
+    apt-get install -y ffmpeg
 
 COPY . /apophis/
 

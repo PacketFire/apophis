@@ -16,7 +16,7 @@ class WeatherCommand(Command):
         else:
             owm_token = os.environ.get(
                 'OWM_TOKEN',
-                context['config']['weather_token']
+                context['config'].get('weather_token', 'bad_token')
             )
 
             owm = pyowm.OWM(owm_token)
