@@ -6,9 +6,36 @@ async def index(request):
     return web.Response(text="Apophis Web")
 
 
-async def http_handler():
+async def search(request):
+    data = await request.json()
+
+    statement = 'select username,content from messages'
+    'where content ilike \'%{}%\''\
+        .format(data['term'])
+
+    results = await request.app['pool'].fetch(statement)
+    payload = []
+
+    if len(results) > 0:
+        for result in results:
+            payload.append({
+                'username': result['username'],
+                'content': result['content']
+            })
+
+    return web.json_response(
+        payload,
+        headers={
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
+
+
+async def http_handler(db):
     app = web.Application()
     app.add_routes([web.get('/', index)])
+    app.add_routes([web.post('/search', search)])
+    app['pool'] = db
 
     runner = web.AppRunner(app)
     await runner.setup()
