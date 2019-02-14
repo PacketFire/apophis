@@ -23,7 +23,13 @@ async def search(request):
                 'content': result['content']
             })
 
-    return web.json_response(payload)
+    print(payload)
+    return web.json_response(
+        payload,
+        headers={
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
 
 
 async def http_handler(db):
