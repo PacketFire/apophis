@@ -4,40 +4,34 @@ import './App.css';
 class App extends Component {
     constructor(props) {
       super(props);
-      this.state = {username: '', password: ''};
+      this.state = {term: '', results: ''};
   
       this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleSubmit(event) {
       event.preventDefault()
-      fetch('http://localhost:5002/login', {
+      fetch('http://localhost:5002/search', {
         method: 'POST',
         body: JSON.stringify({
-          username: this.state.username, 
-          password: this.state.password
+          term: this.state.term
         })
-      }).then(function(responseBody){
-        console.log(responseBody.username);
-      });
+      })
+      .then(response => response.json())
+      .then(results => this.setState({results: results}))
+      .catch(error => console.error('Error:', error));
     }
   
     render() {
+      const { data } = this.state;
       return (
         <form onSubmit={this.handleSubmit}>
-          <p>
           <label>
-            Username:
-            <input type="text" name="username" value={this.state.username} onChange={e => this.setState({username: e.target.value})} />
+            Search Logs:
+            <input type="text" name="term" value={this.state.term} onChange={e => this.setState({term: e.target.value})} />
           </label>
-          </p>
-          <p>
-          <label>
-            Password:
-            <input type="password" name="password" value={this.state.password} onChange={e => this.setState({password: e.target.value})} />
-          </label>
-          </p>
-          <p><input type="submit" value="Login" /></p>
+          <p><input type="submit" value="Submit" /></p>
+          <p>{ data }</p>
         </form>
       );
     }

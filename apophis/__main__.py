@@ -87,8 +87,7 @@ class BotClient(discord.Client):
                         await c.handle(cm, context, message)
 
 
-async def run():
-    config = fetch_config()
+async def run(config, pool):
     bot_token = os.environ.get('BOT_TOKEN', config.get('bot_token'))
 
     if bot_token is None:
@@ -97,7 +96,6 @@ async def run():
         )
         return
 
-    pool = await connect_db(config)
     logger.info('Connected to postgres!')
 
     client = BotClient(config=config, pool=pool)
@@ -159,7 +157,9 @@ async def store_messages(context, sid, server, uid, user, content):
 
 
 async def run_coroutines():
-    colist = [run(), http_handler()]
+    config = fetch_config()
+    pool = await connect_db(config)
+    colist = [run(config, pool), http_handler(pool)]
     return await asyncio.gather(*colist, return_exceptions=True)
 
 
