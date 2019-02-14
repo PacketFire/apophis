@@ -23,7 +23,6 @@ async def search(request):
                 'content': result['content']
             })
 
-    print(payload)
     return web.json_response(
         payload,
         headers={

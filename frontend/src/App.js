@@ -19,7 +19,6 @@ class App extends Component {
       })
       .then(response => response.json() )
       .then(results => {
-        console.log(results)
         this.setState({results:results})
       })
       .catch(error => console.warn(error))
@@ -40,7 +39,7 @@ class App extends Component {
             <input type="text" name="term" value={this.state.term} onChange={e => this.setState({term: e.target.value})} />
           </p>
           <p><input type="submit" value="Submit" /></p>
-        { messages }
+          { messages }
         </form>
       )
     }
