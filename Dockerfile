@@ -1,6 +1,7 @@
-FROM python:3.7.2-alpine3.9
+FROM python:3.7.2-stretch
 
-RUN apk add ffmpeg
+RUN apt-get update && \
+    apt-get install -y ffmpeg
 
 COPY . /apophis/
 
