@@ -7,6 +7,7 @@ from discord import Game
 import asyncio
 import os
 import youtube_dl
+import random
 
 
 REACTION_WHITE_CHECKMARK = '\u2705'
@@ -194,6 +195,13 @@ async def queue_song(context, song_id: int) -> None:
         return song
 
 
+async def random_song() -> int:
+    srand = random.choice(os.listdir('run/music'))
+    sid = int(srand.strip('.mp3'))
+
+    return sid
+
+
 class MusicCommand(Command):
     async def handle(self, context, message):
         usage = 'usage: #music ' \
@@ -309,7 +317,11 @@ class MusicCommand(Command):
                         )
                 else:
                     return await message.channel.send('No songs were found.')
-
+            elif content[0].startswith('random'):
+                song = await random_song()
+                await stop_playing(context)
+                await play_song(context, message, song)
+                return await message.add_reaction(REACTION_WHITE_CHECKMARK)
             else:
                 return await message.channel.send(usage)
         else:
