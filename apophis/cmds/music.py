@@ -195,8 +195,12 @@ async def queue_song(context, song_id: int) -> None:
         return song
 
 
-def random_song() -> int:
-    srand = random.choice(os.listdir('run/music'))
+def random_song(context) -> int:
+    path = os.environ.get(
+        'MUSIC_DATA_DIR',
+        context['config'].get('music_data_dir', 'run/music')
+    )
+    srand = random.choice(os.listdir(path))
     sid = int(srand.strip('.mp3'))
 
     return sid
@@ -318,7 +322,7 @@ class MusicCommand(Command):
                 else:
                     return await message.channel.send('No songs were found.')
             elif content[0].startswith('random'):
-                song = random_song()
+                song = random_song(context)
                 await stop_playing(context)
                 await play_song(context, message, song)
                 return await message.add_reaction(REACTION_WHITE_CHECKMARK)
