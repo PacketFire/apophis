@@ -1,7 +1,6 @@
 import React from 'react'
 import Header from './Header'
 import Navigation from './Navigation'
-import Section from './Section'
 import Footer from './Footer'
 
 function App(props) {
@@ -9,7 +8,6 @@ function App(props) {
         <div>
             <Header />
             <Navigation />
-            <Section />
             <Footer />
         </div>
     )
