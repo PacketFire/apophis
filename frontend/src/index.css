@@ -7,10 +7,59 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #36393E;
-  color: #fffdd0;
+  color: #D3D3D3;
+}
+
+/* unvisited link */
+a:link {
+  color: #D3D3D3;
+}
+
+/* visited link */
+a:visited {
+  color: #D8BFD8;
+}
+
+/* mouse over link */
+a:hover {
+  color: #E6E6FA;
+}
+
+/* selected link */
+a:active {
+  color: #D3D3D3;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+header,nav, section,article,footer {
+  border:1px solid #ADD8E6;
+  margin:5px;
+  padding:8px;
+}
+
+nav ul {
+  margin:0; 
+  padding:0;
+}
+
+nav ul li {
+  display:inline; 
+  margin:5px;
+}
+
+aside { 
+  float:right;
+}
+
+h1,h2,h3,h4{
+  margin-left:5px;
+  color: #D3D3D3;
+}
+  
+table{
+ margin:5px;
 }
