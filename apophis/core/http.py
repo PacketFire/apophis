@@ -39,7 +39,7 @@ async def addperm(request):
         'username': data['username'],
         'level': data['level']
     })
-    print(payload)
+
     return web.json_response(
         payload,
         headers={
@@ -47,12 +47,14 @@ async def addperm(request):
         }
     )
 
+async def updateperm(request):
+
+
 
 async def search(request):
     data = await request.json()
 
-    statement = 'select username,content from messages'
-    'where content ilike \'%{}%\''\
+    statement = 'select username,content from messages where content ilike \'%{}%\''\
         .format(data['term'])
 
     results = await request.app['pool'].fetch(statement)

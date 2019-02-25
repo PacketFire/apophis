@@ -1,10 +1,22 @@
 import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom"
+
+
+const DelPerm = () => (
+  fetch('http://127.0.0.1:5002/delperm', {
+    'method': 'POST'
+  })
+  .catch(error => console.warn(error))
+)
+
+const UpPerm = () => (
+
+)
 
 class Permissions extends Component {
     constructor(props) {
         super(props)
-        this.state = {results: []}
+        this.state = {results: [], checked: true}
 
         fetch('http://127.0.0.1:5002/list')
         .then(response => response.json() )
@@ -22,9 +34,10 @@ class Permissions extends Component {
                     <td>{r.username}</td>
                     <td>{r.level}</td>
                     <td>
-                      <form method="post">
-                        <input type="checkbox"></input>
-                      </form>
+                      <input type="checkbox" onClick={DelPerm} />
+                    </td>
+                    <td>
+                      <input type="checkbox" onClick={UpPerm} />
                     </td>
                   </tr>
             )
@@ -37,18 +50,14 @@ class Permissions extends Component {
                     <li>
                       <Link to="/add">Add</Link>
                     </li>
-                    <li>
-                      <Link to="/delete">Delete</Link>
-                    </li>
-                    <li>
-                      <Link to="/update">Update</Link>
-                    </li>
                   </ul>
                   <table>
                     <tr>
                       <th>ID</th>
                       <th>Username</th>
                       <th>Level</th>
+                      <th>Delete</th>
+                      <th>Update</th>
                       <th></th>
                     </tr>
                     { perms }
