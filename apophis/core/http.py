@@ -47,9 +47,6 @@ async def addperm(request):
         }
     )
 
-async def updateperm(request):
-
-
 
 async def search(request):
     data = await request.json()
