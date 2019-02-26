@@ -72,5 +72,11 @@ commands = [
         'module': 'cmds.weather',
         'handler': 'WeatherCommand',
         'permissions': 0
+    },
+    {
+        'trigger': 'decide',
+        'module': 'cmds.decide',
+        'handler': 'DecideCommand',
+        'permissions': 0
     }
 ]
