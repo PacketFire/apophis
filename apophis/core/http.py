@@ -51,7 +51,8 @@ async def addperm(request):
 async def search(request):
     data = await request.json()
 
-    statement = 'select username,content from messages where content ilike \'%{}%\''\
+    statement = 'select username,content from messages' \
+        'where content ilike \'%{}%\''\
         .format(data['term'])
 
     results = await request.app['pool'].fetch(statement)
