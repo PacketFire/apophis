@@ -8,7 +8,7 @@ class DecideCommand(Command):
         content = message.content[8:].split()
 
         usage = 'usage: decide [option1,' \
-        'option2,option3...]'
+            'option2,option3...]'
 
         if len(content) >= 1:
             options = message.content[8:].split(',')
