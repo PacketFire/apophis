@@ -48,10 +48,8 @@ def evaluate(expr: Expression) -> List[int]:
     if isinstance(value, Constant):
         return [value.c]
     elif isinstance(value, Dice):
-        xs = [0] * value.rolls
-        faces = value.faces
-        terms = map(lambda x: random.randint(1, faces), xs)
-        return list(terms)
+        xs = list(range(value.rolls))
+        return [random.randint(1, value.faces) for _ in xs]
     elif isinstance(value, Add):
         return evaluate(value.left) + evaluate(value.right)
     else:
@@ -200,9 +198,8 @@ class RollCommand(Command):
             return await message.channel.send('Invalid roll expression.')
         else:
             terms = evaluate(expression)
-            sum_string = ' + '.join('**{}**'.format(str(t)) for t in terms)
+            sum_string = ' + '.join(f'**{str(t)}**' for t in terms)
 
             return await message.channel.send(
-                '{} = **{}**'
-                .format(sum_string, sum(terms))
+                f'{sum_string} = **{sum(terms)}**'
             )
