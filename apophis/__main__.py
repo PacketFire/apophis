@@ -6,11 +6,11 @@ import os
 import time
 import logging
 import cmds.command
-import processes.lolesports
+import processes.lolesports_match_notifier
 from core.readers import fetch_config
 from core.http import http_handler
 
-log_level = os.environ.get('LOGLEVEL', 'DEBUG')
+log_level = os.environ.get('LOGLEVEL', 'INFO')
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format='[%(asctime)s %(filename)s'
@@ -88,8 +88,11 @@ class BotClient(discord.Client):
                         await c.handle(cm, context, message)
 
 
-async def start_processes():
-    await processes.lolesports.start({})
+async def start_processes(client):
+    context = {
+        'client': client
+    }
+    return await processes.lolesports_match_notifier.start(context)
 
 
 async def connect_db(config):
@@ -150,7 +153,6 @@ async def run_coroutines():
     config = fetch_config()
 
     bot_token = os.environ.get('BOT_TOKEN', config.get('bot_token'))
-
     if bot_token is None:
         logger.error(
             'You must specify a bot token in order to start the bot.'
@@ -160,7 +162,7 @@ async def run_coroutines():
     pool = await connect_db(config)
     client = BotClient(config=config, pool=pool)
 
-    tasks = [client.start(bot_token), http_handler(pool), start_processes()]
+    tasks = [client.start(bot_token), start_processes(client), http_handler(pool)]
     return await asyncio.gather(*tasks, return_exceptions=True)
 
 
