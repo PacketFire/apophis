@@ -6,6 +6,7 @@ import os
 import time
 import logging
 import cmds.command
+import processes.lolesports
 from core.readers import fetch_config
 from core.http import http_handler
 
@@ -87,19 +88,8 @@ class BotClient(discord.Client):
                         await c.handle(cm, context, message)
 
 
-async def run(config, pool):
-    bot_token = os.environ.get('BOT_TOKEN', config.get('bot_token'))
-
-    if bot_token is None:
-        logger.error(
-            'You must specify a bot token in order to start the bot.'
-        )
-        return
-
-    logger.info('Connected to postgres!')
-
-    client = BotClient(config=config, pool=pool)
-    await client.start(bot_token)
+async def start_processes():
+    await processes.lolesports.start({})
 
 
 async def connect_db(config):
@@ -158,9 +148,20 @@ async def store_messages(context, sid, server, uid, user, content):
 
 async def run_coroutines():
     config = fetch_config()
+
+    bot_token = os.environ.get('BOT_TOKEN', config.get('bot_token'))
+
+    if bot_token is None:
+        logger.error(
+            'You must specify a bot token in order to start the bot.'
+        )
+        return
+
     pool = await connect_db(config)
-    colist = [run(config, pool), http_handler(pool)]
-    return await asyncio.gather(*colist, return_exceptions=True)
+    client = BotClient(config=config, pool=pool)
+
+    tasks = [client.start(bot_token), http_handler(pool), start_processes()]
+    return await asyncio.gather(*tasks, return_exceptions=True)
 
 
 if __name__ == "__main__":
