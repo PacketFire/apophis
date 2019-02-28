@@ -43,9 +43,11 @@ async def start(context) -> None:
 
             current_events = live_events['data']['schedule']['events']
             if current_events is not None:
-                logger.info('Found playing events')
                 # If there are any events in current_events that aren't in last_events, a new event has started.
                 # If the event occurs in a league we are interested in, send a notification.
+                last_events = current_events
+            else:
+                last_events = []
         except Exception as e:
             logger.error('Failed to process live game data.', exc_info=1)
 
