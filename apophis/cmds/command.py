@@ -78,5 +78,11 @@ commands = [
         'module': 'cmds.decide',
         'handler': 'DecideCommand',
         'permissions': 0
+    },
+    {
+        'trigger': 'roll',
+        'module': 'cmds.roll',
+        'handler': 'RollCommand',
+        'permissions': 0
     }
 ]
