@@ -162,7 +162,11 @@ async def run_coroutines():
     pool = await connect_db(config)
     client = BotClient(config=config, pool=pool)
 
-    tasks = [client.start(bot_token), start_processes(client), http_handler(pool)]
+    tasks = [
+        client.start(bot_token),
+        start_processes(client),
+        http_handler(pool)
+    ]
     return await asyncio.gather(*tasks, return_exceptions=True)
 
 
