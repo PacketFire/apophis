@@ -79,8 +79,12 @@ async def start(context) -> None:
                 if league not in subscribed_leagues:
                     continue
 
+                if 'match' not in event:
+                    continue
+
                 match_id = event['match']['id']
-                if any(el['match']['id'] == match_id for el in last_events):
+                if any(el['match']['id'] == match_id
+                        for el in last_events if 'match' in el):
                     continue
 
                 channel = context['client'].get_channel(channel_id)
