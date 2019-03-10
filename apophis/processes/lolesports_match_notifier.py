@@ -44,8 +44,9 @@ def get_event_message(event):
     team_b = event['match']['teams'][1]['code']
 
     message = (
-        f'**{league} {block_name}** - **{team_a} vs {team_b}** has '
-        f'started (<https://watch.na.lolesports.com/en_US/{league}/en>)'
+        f'**{league} {block_name}** - **{team_a} vs {team_b}** is '
+        f'starting shortly '
+        f'(<https://watch.na.lolesports.com/en_US/{league}/en>)'
     )
 
     return message
