@@ -57,6 +57,6 @@ class WeatherCommand(Command):
                     weather.get_temperature('fahrenheit')['temp'],
                     weather.get_humidity(),
                     weather.get_wind()['speed'],
-                    weather.get_status()
+                    weather.get_detailed_status()
                 )
             )
