@@ -20,18 +20,12 @@ const Navigation = () => (
 
       <hr />
 
-      <Route exact path="/" component={Index} />
       <Route path="/about" component={About} />
       <Route path="/dashboard" component={Dashboard} />
     </nav>
   </Router>
 );
 
-const Index = () => (
-  <section>
-    <h2>Index</h2>
-  </section>
-);
 
 const About = () => (
   <section>

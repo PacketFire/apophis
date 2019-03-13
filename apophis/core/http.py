@@ -73,11 +73,21 @@ async def search(request):
     )
 
 
+async def delperm(request):
+    id = request.match_info.get('id')
+    statement = 'delete * from permissions where username = {}' \
+        .format(id)
+
+    await request.app['pool'].execute(statement)
+
+
+
 async def http_handler(db):
     app = web.Application()
     app.add_routes([web.post('/search', search)])
-    app.add_routes([web.get('/list', permlist)])
-    app.add_routes([web.post('/addperm', addperm)])
+    app.add_routes([web.get('/permissions', permlist)])
+    app.add_routes([web.post('/permissions', addperm)])
+    app.add_routes([web.delete('/permissions/{id}', delperm)])
     app['pool'] = db
 
     runner = web.AppRunner(app)
