@@ -84,5 +84,11 @@ commands = [
         'module': 'cmds.roll',
         'handler': 'RollCommand',
         'permissions': 0
+    },
+    {
+        'trigger': 'short',
+        'module': 'cmds.short',
+        'handler': 'ShortCommand',
+        'permissions': 0
     }
 ]
