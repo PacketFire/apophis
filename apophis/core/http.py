@@ -81,7 +81,6 @@ async def delperm(request):
     await request.app['pool'].execute(statement)
 
 
-
 async def http_handler(db):
     app = web.Application()
     app.add_routes([web.post('/search', search)])
