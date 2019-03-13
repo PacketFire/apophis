@@ -29,5 +29,5 @@ class ShortCommand(Command):
                     json=payload
                 )
                 return await message.channel.send(
-                    'Your URL: <' + response.text.strip('"') + '>'
+                    'Your URL: <' + response.text + '>'
                 )
