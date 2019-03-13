@@ -34,11 +34,11 @@ async def addperm(request):
         data['username'],
         int(data['level'])
     )
-    payload = []
-    payload.append({
+
+    payload = {
         'username': data['username'],
         'level': data['level']
-    })
+    }
 
     return web.json_response(
         payload,
@@ -56,14 +56,10 @@ async def search(request):
         .format(data['term'])
 
     results = await request.app['pool'].fetch(statement)
-    payload = []
-
-    if len(results) > 0:
-        for result in results:
-            payload.append({
-                'username': result['username'],
-                'content': result['content']
-            })
+    payload = [
+        {'username': result['username'], 'content': result['content']}
+        for result in results
+    ]
 
     return web.json_response(
         payload,
