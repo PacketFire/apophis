@@ -1,31 +1,30 @@
 import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Link } from "react-router-dom"
+import { BrowserRouter as Route, Link } from "react-router-dom"
 
-
-const DelPerm = () => (
-  fetch('http://127.0.0.1:5002/delperm', {
-    'method': 'POST'
-  })
-  .catch(error => console.warn(error))
-)
-
-const UpPerm = () => (
-
-)
 
 class Permissions extends Component {
     constructor(props) {
         super(props)
-        this.state = {results: [], checked: true}
-
-        fetch('http://127.0.0.1:5002/list')
-        .then(response => response.json() )
-        .then(results => {
-          this.setState({results:results})
-        })
-        .catch(error => console.warn(error))
-
+        this.state = {results: []}
+        this.handleClick = this.handleClick.bind(this)
     }
+
+    componentDidMount() {
+      fetch('http://127.0.0.1:5002/permissions')
+      .then(response => response.json() )
+      .then(results => {
+        this.setState({results:results})
+      })
+      .catch(error => console.warn(error));
+    }
+
+    handleClick(username) {
+      fetch('http://127.0.0.1:5002/permissions/' + username, {
+        method: 'DELETE'
+      })
+      .catch(error => console.warn(error))
+    }
+
     render() {
         const perms = this.state.results.map(function(r, i){
             return (
@@ -34,16 +33,12 @@ class Permissions extends Component {
                     <td>{r.username}</td>
                     <td>{r.level}</td>
                     <td>
-                      <input type="checkbox" onClick={DelPerm} />
-                    </td>
-                    <td>
-                      <input type="checkbox" onClick={UpPerm} />
+                      <input type="checkbox" onClick={e => this.handleClick(r.username)} />
                     </td>
                   </tr>
             )
         })
         return (
-            <Router>
               <article>
                 <h3>Permissions</h3>
                   <ul>
@@ -57,15 +52,12 @@ class Permissions extends Component {
                       <th>Username</th>
                       <th>Level</th>
                       <th>Delete</th>
-                      <th>Update</th>
                       <th></th>
                     </tr>
                     { perms }
                   </table>
                   <Route path="/add" component={AddPerm} />
-
               </article>
-            </Router>
         )
     }
 }
@@ -80,7 +72,7 @@ class AddPerm extends Component {
 
     handleSubmit(event) {
       event.preventDefault()
-      fetch('http://127.0.0.1:5002/addperm', {
+      fetch('http://127.0.0.1:5002/permissions', {
         method: 'POST',
         body: JSON.stringify({
           username: this.state.username,
