@@ -19,11 +19,18 @@ const Navigation = () => (
       </ul>
 
       <hr />
-
-      <Route path="/about" component={About} />
-      <Route path="/dashboard" component={Dashboard} />
     </nav>
+    <Route path="/" component={Index} />
+    <Route path="/about" component={About} />
+    <Route path="/dashboard" component={Dashboard} />
   </Router>
+);
+
+
+const Index = () => (
+  <section>
+    <h2>Index</h2>
+  </section>
 );
 
 
