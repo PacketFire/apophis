@@ -4,7 +4,19 @@ from cmds.command import Command
 
 class RemindCommand(Command):
     async def handle(self, context, message):
-        if message.content[-2:] == "pm" or message.content[-2:] == "am":
+        content = message.content[8:].split()
+        accepted = [
+            'years',
+            'year',
+            'days',
+            'day',
+            'hour',
+            'hours',
+            'minute',
+            'minutes'
+        ]
+
+        if content[-1] in accepted:
             return await message.channel.send(
                 "Setting reminder ``{0}`` for <@{1}>"
                 .format(
@@ -15,5 +27,5 @@ class RemindCommand(Command):
         else:
             return await message.channel.send(
                 "usage: !remind <reminder message> "
-                "<date (00/00/0000)> <time (1:00-12:00 am or pm)>"
+                "<1-* years> <1-364 days> <1-24 hours> <1-60 minutes>"
             )
