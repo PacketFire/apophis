@@ -1,5 +1,22 @@
 """ Reminder Command """
 from cmds.command import Command
+import asyncio
+import time
+
+
+async def reminder_timer(loop, calltime):
+    now = loop.time()
+    loop.call_at(now + calltime)
+
+
+async def reminder_callback(calltime):
+    event_loop = asyncio.get_event_loop()
+    try:
+        event_loop.run_until_complete(
+            reminder_timer(event_loop, calltime)
+        )
+    finally:
+        event_loop.close()
 
 
 class RemindCommand(Command):
@@ -17,6 +34,7 @@ class RemindCommand(Command):
         ]
 
         if content[-1] in accepted:
+            
             return await message.channel.send(
                 "Setting reminder ``{0}`` for <@{1}>"
                 .format(
