@@ -3,15 +3,17 @@ from cmds.command import Command
 
 
 class RemindCommand(Command):
-    async def handler(self, context, message):
-        content = message.content[8:].split()
-
-        if len(content) == 2:
+    async def handle(self, context, message):
+        if message.content[-2:] == "pm" or message.content[-2:] == "am":
             return await message.channel.send(
-                "Setting reminder to {0} for {1} at {2}"
-                .format(message.author, content[0], content[1])
+                "Setting reminder ``{0}`` for <@{1}>"
+                .format(
+                    message.content[8:],
+                    message.author.id
+                )
             )
         else:
             return await message.channel.send(
-                "usage: !remind <reminder message> <date/time>"
+                "usage: !remind <reminder message> "
+                "<date (00/00/0000)> <time (1:00-12:00 am or pm)>"
             )
