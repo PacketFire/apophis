@@ -19,7 +19,7 @@ class ShortCommand(Command):
     async def handle(self, context, message):
         content = message.content[7:].split()
 
-        if len(content) >= 1:
+        if len(content) == 1:
             if await validate_url(content[0]) is not False:
                 payload = {
                     'url': content[0]
