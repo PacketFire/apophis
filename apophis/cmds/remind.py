@@ -24,7 +24,8 @@ class RemindCommand(Command):
         usage = "usage: !remind <reminder message>, " \
             "<1-* year(s)>, <1-12 month(s)>, " \
             "<1-52 week(s)>, <1-364 day(s)>, " \
-            "<1-24 hour(s)>, <1-60 minute(s)>"
+            "<1-24 hour(s)>, <1-60 minute(s)>" \
+            "<1-*> second(s)> "
 
         content = message.content[8:].split()
         last = content[-1]
