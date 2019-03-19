@@ -22,9 +22,9 @@ async def add_reminder(author, reminder, when):
 class RemindCommand(Command):
     async def handle(self, context, message):
         usage = "usage: !remind <reminder message>, " \
-            "<1-* years> <1-12 months> " \
-            "<1-52 weeks> <1-364 days> " \
-            "<1-24 hours> <1-60 minutes>"
+            "<1-* year(s)>, <1-12 month(s)>, " \
+            "<1-52 week(s)>, <1-364 day(s)>, " \
+            "<1-24 hour(s)>, <1-60 minute(s)>"
 
         content = message.content[8:].split()
         last = content[-1]
