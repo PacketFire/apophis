@@ -6,6 +6,15 @@ import json
 import logging
 
 
+units_to_seconds = {
+    "minute" : 60, 
+    "hour" : 3600, 
+    "day" : 86400, 
+    "week": 604800, 
+    "month": 2592000
+}
+
+
 async def add_reminder(author, reminder, when):
     data = {
         "author": author,
