@@ -29,12 +29,12 @@ class RemindCommand(Command):
         content = message.content[8:].split()
         last = content[-1]
         accepted = [
-            'year', 'years',
-            'month', 'months',
-            'week', 'weeks',
-            'day', 'days',
-            'hour', 'hours',
-            'minute', 'minutes'
+            'year', 'years', 'y',
+            'month', 'months', 'mo',
+            'week', 'weeks', 'w',
+            'day', 'days', 'd',
+            'hour', 'hours', 'h',
+            'minute', 'minutes', 'm'
         ]
 
         if last in accepted:
