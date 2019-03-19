@@ -34,7 +34,8 @@ class RemindCommand(Command):
             'week', 'weeks', 'w',
             'day', 'days', 'd',
             'hour', 'hours', 'h',
-            'minute', 'minutes', 'm'
+            'minute', 'minutes', 'm',
+            'second', 'seconds', 's'
         ]
 
         if last in accepted:
