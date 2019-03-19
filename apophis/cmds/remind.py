@@ -1,13 +1,9 @@
 """ Reminder Command """
 from cmds.command import Command
-import asyncio
-import time
+# import asyncio
+# import time
 import json
 import logging
-
-
-units = {"minutes": 60, "hours": 24, "days": 365, "weeks": 52}
-# units = {"minute" : 60, "hour" : 3600, "day" : 86400, "week": 604800, "month": 2592000}
 
 
 async def add_reminder(author, reminder, when):
@@ -26,9 +22,9 @@ async def add_reminder(author, reminder, when):
 class RemindCommand(Command):
     async def handle(self, context, message):
         usage = "usage: !remind <reminder message>, " \
-        "<1-* years> <1-12 months> " \
-        "<1-52 weeks> <1-364 days> " \
-        "<1-24 hours> <1-60 minutes>"
+            "<1-* years> <1-12 months> " \
+            "<1-52 weeks> <1-364 days> " \
+            "<1-24 hours> <1-60 minutes>"
 
         content = message.content[8:].split()
         last = content[-1]
@@ -49,11 +45,11 @@ class RemindCommand(Command):
                 return await message.channel.send(usage)
 
             await add_reminder(
-                message.author.id, 
+                message.author.id,
                 reminder[0],
                 when
             )
-            
+
             return await message.channel.send(
                 "Setting reminder, ``{0}`` for, <@{1}>, duration, {2}"
                 .format(
@@ -62,5 +58,5 @@ class RemindCommand(Command):
                     when
                 )
             )
-        
+
         return await message.channel.send(usage)
