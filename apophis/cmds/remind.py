@@ -1,25 +1,61 @@
 """ Reminder Command """
 from cmds.command import Command
-# import asyncio
-# import time
+import asyncio
 import json
 import logging
+import time
+from datetime import datetime
 
 
-units_to_seconds = {
-    "minute" : 60, 
-    "hour" : 3600, 
-    "day" : 86400, 
-    "week": 604800, 
-    "month": 2592000
-}
+def convert_times(when):
+    t = {
+        "year": int(datetime.now().strftime("%Y")),
+        "month": int(datetime.now().strftime("%m")),
+        "day": int(datetime.now().strftime("%d")),
+        "hour": int(datetime.now().strftime("%H")),
+        "minute": int(datetime.now().strftime("%M")),
+    }
+
+    iau = [
+        {"int": int(w.split()[0]), "unit": w.split()[1]}
+        for w in when
+    ]
+
+    for i in range(len(iau)):
+        if iau[i]['unit'].startswith('y'):
+            t['year'] = int(iau[i]['int'] + t['year'])
+        elif iau[i]['unit'].startswith('mo'):
+            t['month'] = int(iau[i]['int'] + t['month'])
+        elif iau[i]['unit'].startswith('d'):
+            t['day'] = int(iau[i]['int'] + t['day'])
+        elif iau[i]['unit'].startswith('h'):
+            t['hour'] = int(iau[i]['int'] + t['hour'])
+        elif iau[i]['unit'].startswith('mi'):
+            t['minute'] = int(iau[i]['int'] + t['minute'])
+
+    
+    time_string = "{0}-{1}-{2} {3}:{4}".format(
+        t['year'],
+        t['month'],
+        t['day'],
+        t['hour'],
+        t['minute']
+    )
+
+    datetime_object = datetime.strptime(
+        time_string,
+        "%Y-%m-%d %H:%M"
+    ).strftime("%Y-%m-%d %H:%M")
+
+    return datetime_object
 
 
-async def add_reminder(author, reminder, when):
+async def add_reminder(author, reminder, current, reminder_time):
     data = {
         "author": author,
         "reminder": reminder,
-        "when": when
+        "date_added": current,
+        "reminder_time": reminder_time
     }
     try:
         with open("data/reminders.json", "a") as fh:
@@ -31,43 +67,47 @@ async def add_reminder(author, reminder, when):
 class RemindCommand(Command):
     async def handle(self, context, message):
         usage = "usage: !remind <reminder message>, " \
-            "<1-* year(s)>, <1-12 month(s)>, " \
-            "<1-52 week(s)>, <1-364 day(s)>, " \
-            "<1-24 hour(s)>, <1-60 minute(s)>" \
-            "<1-*> second(s)> "
+            "<1-* (y) year(s)>, <1-12 (mo) month(s)>, " \
+            "<1-364 (d) day(s)>, <1-24 (h) hour(s)>, " \
+            "<1-60 (m) minute(s)>"
 
         content = message.content[8:].split()
         last = content[-1]
         accepted = [
             'year', 'years', 'y',
             'month', 'months', 'mo',
-            'week', 'weeks', 'w',
             'day', 'days', 'd',
             'hour', 'hours', 'h',
             'minute', 'minutes', 'm',
-            'second', 'seconds', 's'
         ]
 
         if last in accepted:
             reminder = message.content[8:].split(', ')
             when = reminder[1:]
+            current = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             if not when:
                 return await message.channel.send(usage)
 
+
+            reminder_time = convert_times(when)
+
             await add_reminder(
                 message.author.id,
                 reminder[0],
-                when
+                current,
+                reminder_time
             )
 
             return await message.channel.send(
-                "Setting reminder, ``{0}`` for, <@{1}>, duration, {2}"
+                "Setting reminder, ``{0}`` for, <@{1}>, duration, {2}, reminder time: {3}"
                 .format(
                     reminder[0],
                     message.author.id,
-                    when
+                    when,
+                    reminder_time
                 )
             )
+
 
         return await message.channel.send(usage)

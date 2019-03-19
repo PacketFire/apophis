@@ -1,4 +1,6 @@
 import json
+from typing import List, Any
+import logging
 
 
 def fetch_config():
@@ -8,3 +10,13 @@ def fetch_config():
         return config
     except IOError:
         return {'error': 'config does not exist'}
+
+
+def get_reminders() -> List[Any]:
+    try:
+        with open('data/reminders.json', 'r') as fh:
+            reminders = json.load(fh)
+    except IOError:
+        logging.error("Unable to read reminders file")
+
+    return reminders
