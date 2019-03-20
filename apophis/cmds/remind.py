@@ -21,17 +21,17 @@ def convert_times(when):
         for w in when
     ]
 
-    for i in range(len(iau)):
-        if iau[i]['unit'].startswith('y'):
-            t['year'] = int(iau[i]['int'] + t['year'])
-        elif iau[i]['unit'].startswith('mo'):
-            t['month'] = int(iau[i]['int'] + t['month'])
-        elif iau[i]['unit'].startswith('d'):
-            t['day'] = int(iau[i]['int'] + t['day'])
-        elif iau[i]['unit'].startswith('h'):
-            t['hour'] = int(iau[i]['int'] + t['hour'])
-        elif iau[i]['unit'].startswith('mi'):
-            t['minute'] = int(iau[i]['int'] + t['minute'])
+    for x in range(len(iau)):
+        if iau[x]['unit'].startswith('y'):
+            t['year'] = int(iau[x]['int'] + t['year'])
+        elif iau[x]['unit'].startswith('mo'):
+            t['month'] = int(iau[x]['int'] + t['month'])
+        elif iau[x]['unit'].startswith('d'):
+            t['day'] = int(iau[x]['int'] + t['day'])
+        elif iau[x]['unit'].startswith('h'):
+            t['hour'] = int(iau[x]['int'] + t['hour'])
+        elif iau[x]['unit'].startswith('mi'):
+            t['minute'] = int(iau[x]['int'] + t['minute'])
 
     
     time_string = "{0}-{1}-{2} {3}:{4}".format(

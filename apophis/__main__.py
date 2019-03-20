@@ -9,6 +9,8 @@ import cmds.command
 import processes.lolesports_match_notifier
 from core.readers import fetch_config
 from core.http import http_handler
+from processes.reminders import output_reminder
+
 
 log_level = os.environ.get('LOGLEVEL', 'INFO')
 logger = logging.getLogger(__name__)
@@ -89,10 +91,21 @@ class BotClient(discord.Client):
 
 
 async def start_processes(client):
+    while True:
+        await asyncio.sleep(30)
+        context = {
+            'client': client
+        }
+        
+        return await processes.lolesports_match_notifier.start(context)
+
+
+async def poll_reminders(client):
     context = {
         'client': client
     }
-    return await processes.lolesports_match_notifier.start(context)
+
+    return await output_reminder(context)
 
 
 async def connect_db(config):
@@ -165,7 +178,8 @@ async def run_coroutines():
     tasks = [
         client.start(bot_token),
         start_processes(client),
-        http_handler(pool)
+        http_handler(pool),
+        poll_reminders(client)
     ]
     return await asyncio.gather(*tasks, return_exceptions=True)
 

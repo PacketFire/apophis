@@ -1,34 +1,27 @@
 from datetime import datetime
 from core.readers import get_reminders
 import asyncio
+import logging
 
-
-def check_reminders() -> bool:
+async def output_reminder(context):
+    logging.info('Starting reminders poll..')
     current = datetime.now().strftime("%Y-%m-%d %H:%M")
-
-    reminders = get_reminders()
-
-    payload = [
-        {
-            "date": reminder['date']
-        }
-        for reminder in reminders
-    ]
-
-    if current in payload['date']:
-        return True
-
-
-def output_reminders():
     reminders = get_reminders()
 
     payload = [
         {
             "author": reminder['author'],
-            "reminder": reminder['reminder']
+            "reminder": reminder['reminder'],
+            "reminder_time": reminder['reminder_time']
         }
         for reminder in reminders
     ]
 
-    return payload
-
+    if current is payload['reminder_time']:
+        channel = context['client'].get_channel(550196694118170624)
+        return await channel.send(
+            "<@{0}> {1}".format(
+                payload['author'],
+                payload['reminder']
+            )
+        )
