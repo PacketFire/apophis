@@ -1,10 +1,9 @@
 """ Reminder Command """
 from cmds.command import Command
-import asyncio
 import json
 import logging
-import time
 from datetime import datetime
+from core.readers import get_reminders
 
 
 def convert_times(when):
@@ -14,6 +13,7 @@ def convert_times(when):
         "day": int(datetime.now().strftime("%d")),
         "hour": int(datetime.now().strftime("%H")),
         "minute": int(datetime.now().strftime("%M")),
+        "second": int(datetime.now().strftime("%S"))
     }
 
     iau = [
@@ -32,34 +32,38 @@ def convert_times(when):
             t['hour'] = int(iau[x]['int'] + t['hour'])
         elif iau[x]['unit'].startswith('mi'):
             t['minute'] = int(iau[x]['int'] + t['minute'])
+        elif iau[x]['unit'].startswith('s'):
+            t['second'] = int(iau[x]['int'] + t['second'])
 
-    
-    time_string = "{0}-{1}-{2} {3}:{4}".format(
+    time_string = "{0}-{1}-{2} {3}:{4}:{5}".format(
         t['year'],
         t['month'],
         t['day'],
         t['hour'],
-        t['minute']
+        t['minute'],
+        t['second']
     )
 
     datetime_object = datetime.strptime(
         time_string,
-        "%Y-%m-%d %H:%M"
-    ).strftime("%Y-%m-%d %H:%M")
+        "%Y-%m-%d %H:%M:%S"
+    ).strftime("%Y-%m-%d %H:%M:%S")
 
     return datetime_object
 
 
 async def add_reminder(author, reminder, current, reminder_time):
-    data = {
+    reminders = get_reminders()
+    reminders.append({
         "author": author,
         "reminder": reminder,
         "date_added": current,
         "reminder_time": reminder_time
-    }
+    })
+
     try:
-        with open("data/reminders.json", "a") as fh:
-            fh.write(json.dumps(data))
+        with open("data/reminders.json", "w") as fh:
+            fh.write(json.dumps(reminders))
     except IOError:
         logging.error("Unable to write to reminder file")
 
@@ -84,11 +88,10 @@ class RemindCommand(Command):
         if last in accepted:
             reminder = message.content[8:].split(', ')
             when = reminder[1:]
-            current = datetime.now().strftime("%Y-%m-%d %H:%M")
+            current = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             if not when:
                 return await message.channel.send(usage)
-
 
             reminder_time = convert_times(when)
 
@@ -100,7 +103,8 @@ class RemindCommand(Command):
             )
 
             return await message.channel.send(
-                "Setting reminder, ``{0}`` for, <@{1}>, duration, {2}, reminder time: {3}"
+                "Setting reminder, ``{0}`` for, <@{1}>, "
+                "duration, {2}, reminder time: {3}"
                 .format(
                     reminder[0],
                     message.author.id,
@@ -108,6 +112,5 @@ class RemindCommand(Command):
                     reminder_time
                 )
             )
-
 
         return await message.channel.send(usage)

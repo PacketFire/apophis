@@ -1,6 +1,6 @@
 import json
-from typing import List, Any
 import logging
+from typing import List, Any
 
 
 def fetch_config():
