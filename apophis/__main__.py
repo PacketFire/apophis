@@ -91,19 +91,18 @@ class BotClient(discord.Client):
 
 
 async def start_processes(client):
-    while True:
-        await asyncio.sleep(30)
-        context = {
-            'client': client
-        }
-        
-        return await processes.lolesports_match_notifier.start(context)
-
-
-async def poll_reminders(client):
     context = {
         'client': client
     }
+    return await processes.lolesports_match_notifier.start(context)
+
+
+async def poll_reminders(client):
+    while True:
+        asyncio.sleep(30)
+        context = {
+            'client': client
+        }
 
     return await output_reminder(context)
 
