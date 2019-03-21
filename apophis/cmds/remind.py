@@ -3,6 +3,15 @@ from cmds.command import Command
 from datetime import datetime
 
 
+"""
+Time Conversion Function
+
+This method takes a given unit of time and converts it datetime format.
+Time unit example: 1 year(s), 1 month(s), 1 day(s), 1 hour(s), 1 minute(s)
+1 second(s)
+"""
+
+
 def convert_times(when):
     """
     As LiquidLemon pointed out in review, this can be reduced.
@@ -29,8 +38,10 @@ def convert_times(when):
     This is also reduceable, and can be attended to accordingly.
     Idea would be to reduce the long if/else statement. Also,
     need to address a bug pertaining to max time lengths. A max
-    integer size is required here in order to prevent time unit
-    overflow.
+    integer size is required here in order to prevent time integer
+    overflow. To easily reduce, accepting unit abbreviation only,
+    would allow us to simplify. I do however, prefer multiple unit
+    support.
     """
     for x in range(len(iau)):
         if iau[x]['unit'].startswith('y'):
@@ -61,6 +72,12 @@ def convert_times(when):
     ).strftime("%Y-%m-%d %H:%M:%S")
 
     return datetime_object
+
+
+"""
+Add Reminder Function
+Adds a reminder to reminders table in database.
+"""
 
 
 async def add_reminder(
@@ -106,6 +123,9 @@ class RemindCommand(Command):
             'second', 'seconds', 's'
         ]
 
+        """
+        Commas are being used as reminder and time unit delimiters.
+        """
         if last in accepted:
             reminder = message.content[8:].split(', ')
             when = reminder[1:]
