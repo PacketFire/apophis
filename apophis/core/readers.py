@@ -12,11 +12,10 @@ def fetch_config():
         return {'error': 'config does not exist'}
 
 
-def get_reminders() -> List[Any]:
-    try:
-        with open('data/reminders.json', 'r') as fh:
-            reminders = json.load(fh)
-    except IOError:
-        logging.error("Unable to read reminders file")
+async def get_reminders(context) -> List[Any]:
+    statement = '''
+    select reminder_date, author, reminder, channel from reminders
+    '''
+    dates = await context['db'].fetch(statement)
 
-    return reminders
+    return dates

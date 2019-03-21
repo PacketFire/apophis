@@ -3,7 +3,6 @@ from cmds.command import Command
 import json
 import logging
 from datetime import datetime
-from core.readers import get_reminders
 
 
 def convert_times(when):
@@ -52,20 +51,29 @@ def convert_times(when):
     return datetime_object
 
 
-async def add_reminder(author, reminder, current, reminder_time):
-    reminders = get_reminders()
-    reminders.append({
-        "author": author,
-        "reminder": reminder,
-        "date_added": current,
-        "reminder_time": reminder_time
-    })
+async def add_reminder(
+    context, author, reminder,
+    current, reminder_date, channel
+):
+    statement = '''
+        insert into reminders (
+        reminder_date,
+        date_of,
+        author,
+        reminder,
+        channel
+    )
+    values($1, $2, $3, $4, $5);
+    '''
 
-    try:
-        with open("data/reminders.json", "w") as fh:
-            fh.write(json.dumps(reminders))
-    except IOError:
-        logging.error("Unable to write to reminder file")
+    return await context['db'].execute(
+        statement,
+        reminder_date,
+        current,
+        str(author),
+        reminder,
+        str(channel)
+    )
 
 
 class RemindCommand(Command):
@@ -73,7 +81,7 @@ class RemindCommand(Command):
         usage = "usage: !remind <reminder message>, " \
             "<1-* (y) year(s)>, <1-12 (mo) month(s)>, " \
             "<1-364 (d) day(s)>, <1-24 (h) hour(s)>, " \
-            "<1-60 (m) minute(s)>"
+            "<1-60 (m) minute(s)> <1-60 (s) second(s)>"
 
         content = message.content[8:].split()
         last = content[-1]
@@ -83,6 +91,7 @@ class RemindCommand(Command):
             'day', 'days', 'd',
             'hour', 'hours', 'h',
             'minute', 'minutes', 'm',
+            'second', 'seconds', 's'
         ]
 
         if last in accepted:
@@ -96,10 +105,12 @@ class RemindCommand(Command):
             reminder_time = convert_times(when)
 
             await add_reminder(
+                context,
                 message.author.id,
                 reminder[0],
                 current,
-                reminder_time
+                reminder_time,
+                message.channel.id
             )
 
             return await message.channel.send(
