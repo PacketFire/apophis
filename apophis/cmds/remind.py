@@ -4,6 +4,13 @@ from datetime import datetime
 
 
 def convert_times(when):
+    """
+    As LiquidLemon pointed out in review, this can be reduced.
+    Using, .year, .month, .day etc.. However, this was causing
+    a formatting issue with the comparison date times. In order
+    to correct, I will need to look into the time parsing and
+    do a bit more debugging to ensure it will not cause issues.
+    """
     t = {
         "year": int(datetime.now().strftime("%Y")),
         "month": int(datetime.now().strftime("%m")),
@@ -18,6 +25,10 @@ def convert_times(when):
         for w in when
     ]
 
+    """
+    This is also reduceable, and can be attended to accordingly.
+    Idea would be to reduce the long if/else statement.
+    """
     for x in range(len(iau)):
         if iau[x]['unit'].startswith('y'):
             t['year'] = int(iau[x]['int'] + t['year'])
