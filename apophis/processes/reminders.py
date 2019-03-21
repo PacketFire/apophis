@@ -25,7 +25,9 @@ async def output_reminder(context):
 
             for i in range(len(payload)):
                 if current in payload[i]['reminder_date']:
-                    channel = context['client'].get_channel(int(payload[i]['channel']))
+                    channel = context['client'].get_channel(
+                        int(payload[i]['channel'])
+                    )
                     await channel.send(
                         "<@{0}> {1}".format(
                             payload[i]['author'],
