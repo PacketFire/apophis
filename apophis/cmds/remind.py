@@ -27,7 +27,10 @@ def convert_times(when):
 
     """
     This is also reduceable, and can be attended to accordingly.
-    Idea would be to reduce the long if/else statement.
+    Idea would be to reduce the long if/else statement. Also,
+    need to address a bug pertaining to max time lengths. A max
+    integer size is required here in order to prevent time unit
+    overflow.
     """
     for x in range(len(iau)):
         if iau[x]['unit'].startswith('y'):
