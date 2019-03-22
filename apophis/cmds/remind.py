@@ -106,8 +106,7 @@ class RemindCommand(Command):
             'month', 'months', 'mo',
             'day', 'days', 'd',
             'hour', 'hours', 'h',
-            'minute', 'minutes', 'm',
-            'second', 'seconds', 's'
+            'minute', 'minutes', 'm'
         ]
 
         """
