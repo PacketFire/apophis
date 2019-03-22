@@ -1,16 +1,26 @@
 from datetime import datetime
-from core.readers import get_reminders
 import asyncio
 import logging
+from typing import List, Any
+
+
+async def get_reminders(context, current) -> List[Any]:
+    statement = '''
+    select reminder_date, author, reminder, channel from reminders
+    where reminder_date >= $1
+    '''
+    dates = await context['db'].fetch(statement, current)
+
+    return dates
 
 
 async def output_reminder(context):
     logging.info("Polling reminders..")
     while True:
-        await asyncio.sleep(1)
-        current = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        await asyncio.sleep(60)
+        current = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        reminders = await get_reminders(context)
+        reminders = await get_reminders(context, current)
 
         if len(reminders) > 0:
             payload = [

@@ -8,25 +8,20 @@ Time Conversion Function
 
 This method takes a given unit of time and converts it datetime format.
 Time unit example: 1 year(s), 1 month(s), 1 day(s), 1 hour(s), 1 minute(s)
-1 second(s)
 """
 
 
 def convert_times(when):
     """
-    As LiquidLemon pointed out in review, this can be reduced.
-    Using, .year, .month, .day etc.. However, this was causing
-    a formatting issue with the comparison date times. In order
-    to correct, I will need to look into the time parsing and
-    do a bit more debugging to ensure it will not cause issues.
+    Open issue to enhance this feature.
+    https://github.com/PacketFire/apophis/issues/120
     """
     t = {
         "year": int(datetime.now().strftime("%Y")),
         "month": int(datetime.now().strftime("%m")),
         "day": int(datetime.now().strftime("%d")),
         "hour": int(datetime.now().strftime("%H")),
-        "minute": int(datetime.now().strftime("%M")),
-        "second": int(datetime.now().strftime("%S"))
+        "minute": int(datetime.now().strftime("%M"))
     }
 
     iau = [
@@ -35,13 +30,8 @@ def convert_times(when):
     ]
 
     """
-    This is also reduceable, and can be attended to accordingly.
-    Idea would be to reduce the long if/else statement. Also,
-    need to address a bug pertaining to max time lengths. A max
-    integer size is required here in order to prevent time integer
-    overflow. To easily reduce, accepting unit abbreviation only,
-    would allow us to simplify. I do however, prefer multiple unit
-    support.
+    Open issue to enhance this feature.
+    https://github.com/PacketFire/apophis/issues/121
     """
     for x in range(len(iau)):
         if iau[x]['unit'].startswith('y'):
@@ -54,22 +44,19 @@ def convert_times(when):
             t['hour'] = int(iau[x]['int'] + t['hour'])
         elif iau[x]['unit'].startswith('mi'):
             t['minute'] = int(iau[x]['int'] + t['minute'])
-        elif iau[x]['unit'].startswith('s'):
-            t['second'] = int(iau[x]['int'] + t['second'])
 
     time_string = "{0}-{1}-{2} {3}:{4}:{5}".format(
         t['year'],
         t['month'],
         t['day'],
         t['hour'],
-        t['minute'],
-        t['second']
+        t['minute']
     )
 
     datetime_object = datetime.strptime(
         time_string,
-        "%Y-%m-%d %H:%M:%S"
-    ).strftime("%Y-%m-%d %H:%M:%S")
+        "%Y-%m-%d %H:%M"
+    )
 
     return datetime_object
 
@@ -85,7 +72,7 @@ async def add_reminder(
     current, reminder_date, channel
 ):
     statement = '''
-        insert into reminders (
+    insert into reminders (
         reminder_date,
         date_of,
         author,
@@ -110,7 +97,7 @@ class RemindCommand(Command):
         usage = "usage: !remind <reminder message>, " \
             "<1-* (y) year(s)>, <1-12 (mo) month(s)>, " \
             "<1-364 (d) day(s)>, <1-24 (h) hour(s)>, " \
-            "<1-60 (m) minute(s)> <1-60 (s) second(s)>"
+            "<1-60 (m) minute(s)>"
 
         content = message.content[8:].split()
         last = content[-1]
@@ -129,7 +116,7 @@ class RemindCommand(Command):
         if last in accepted:
             reminder = message.content[8:].split(', ')
             when = reminder[1:]
-            current = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            current = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             if not when:
                 return await message.channel.send(usage)
