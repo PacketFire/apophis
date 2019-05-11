@@ -12,7 +12,8 @@ environment = 'prod'
 subscribed_leagues = [
     'LCS',
     'LEC',
-    'LCK'
+    'LCK',
+    'MSI'
     ]
 
 channel_id = int(os.environ.get(
