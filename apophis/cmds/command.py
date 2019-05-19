@@ -90,5 +90,11 @@ commands = [
         'module': 'cmds.short',
         'handler': 'ShortCommand',
         'permissions': 0
+    },
+    {
+        'trigger': 'remind',
+        'module': 'cmds.remind',
+        'handler': 'RemindCommand',
+        'permissions': 0
     }
 ]
