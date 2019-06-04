@@ -96,5 +96,11 @@ commands = [
         'module': 'cmds.remind',
         'handler': 'RemindCommand',
         'permissions': 0
+    },
+    {
+        'trigger': 'insult',
+        'module': 'cmds.insult',
+        'handler': 'InsultCommand',
+        'permissions': 0
     }
 ]
