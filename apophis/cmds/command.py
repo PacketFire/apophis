@@ -101,6 +101,6 @@ commands = [
         'trigger': 'insult',
         'module': 'cmds.insult',
         'handler': 'InsultCommand',
-        'permissions': 0
+        'permissions': 1
     }
 ]
