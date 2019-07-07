@@ -9,7 +9,7 @@ usage = """Usage:
 !insult add a new insult
 !insult del <integer>
 ```"""
-limit = 500  # Not more than 500 characters insult
+CHAR_LIMIT = 500  # Not more than 500 characters insult
 
 
 async def add_insult(context, insult, author):
@@ -97,7 +97,7 @@ class InsultCommand(Command):
 
         if action.lower() == "add":
             insult = " ".join(remainder)
-            if len(insult) > limit:
+            if len(insult) > CHAR_LIMIT:
                 msg = (
                     "It's supposed to be an insult <@{}>, not copypasta!"
                 ).format(author)
