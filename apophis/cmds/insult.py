@@ -1,4 +1,4 @@
-from datetime import datetime
+import time
 
 from cmds.command import Command
 
@@ -13,7 +13,7 @@ CHAR_LIMIT = 500  # Not more than 500 characters insult
 
 
 async def add_insult(context, insult, author):
-    epoch = datetime.strftime(datetime.now(), "%s")
+    epoch = int(time.time())
 
     statement = """
     insert into insults (
@@ -103,10 +103,16 @@ class InsultCommand(Command):
                 ).format(author)
                 return await message.channel.send(msg)
 
-            insult_id = await add_insult(context, insult, author)
-            msg = "<@{}>, added current insult as **insult #{}**!".format(
-                author, insult_id
-            )
+            if not mentioned:
+                insult_id = await add_insult(context, insult, author)
+                msg = "<@{}>, added current insult as **insult #{}**!".format(
+                    author, insult_id
+                )
+            else:
+                msg = (
+                    "<@{}>, thou shall not mention users in insult messages!"
+                ).format(author)
+
             return await message.channel.send(msg)
 
         # Only action that is left is delete, process it
@@ -115,7 +121,7 @@ class InsultCommand(Command):
             identifier = int(identifier)  # id is int in DB
         except ValueError:
             msg = "<@{}>, insult id should be an integer".format(
-                author, identifier
+                author
             )
         else:
             status = await delete_insult(context, identifier)
