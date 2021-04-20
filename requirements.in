@@ -1,4 +1,4 @@
-asyncpg==0.18.3
+asyncpg==0.21.0
 click==7.0
 flake8==3.6.0
 mypy==0.630
